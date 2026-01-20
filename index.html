@@ -3,337 +3,317 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>禾析智能 - V3.0 旗舰版</title>
+    <title>禾析智能 - 完美复刻版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #0f172a; }
-        /* 容器背景纹理 */
+        body { font-family: 'Inter', sans-serif; background-color: #f0fdf4; display: flex; justify-content: center; min-height: 100vh; margin: 0; }
+        
+        /* 手机容器 */
         .app-container { 
-            max-width: 480px; margin: 0 auto; min-height: 100vh; 
-            background: linear-gradient(180deg, #f0fdf4 0%, #ffffff 100%);
-            position: relative; overflow: hidden; 
-            background-image: radial-gradient(#16a34a 0.5px, transparent 0.5px);
-            background-size: 20px 20px;
+            width: 100%; max-width: 414px; 
+            background: #eff6f3; /* 极淡的灰绿色背景 */
+            position: relative; overflow: hidden; min-height: 100vh;
+            box-shadow: 0 0 50px rgba(0,0,0,0.1);
         }
         
         .page { display: none; height: 100vh; overflow-y: auto; padding: 20px; padding-bottom: 100px; scroll-behavior: smooth; }
         .page.active { display: block; }
         
-        /* 高级毛玻璃卡片 */
-        .glass-card { 
-            background: rgba(255, 255, 255, 0.75); 
-            backdrop-filter: blur(20px); 
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.8);
-            box-shadow: 0 10px 30px -10px rgba(22, 163, 74, 0.15);
-            border-radius: 24px; 
+        /* 通用卡片样式 - 还原图片中的圆角和阴影 */
+        .card { 
+            background: white; 
+            border-radius: 20px; 
+            box-shadow: 0 4px 20px rgba(16, 185, 129, 0.08); /* 淡淡的绿色阴影 */
             margin-bottom: 16px;
+            padding: 20px;
         }
 
-        /* 弥散光装饰 */
-        .glow-bg {
-            position: absolute; width: 300px; height: 300px;
-            background: radial-gradient(circle, rgba(74,222,128,0.2) 0%, rgba(255,255,255,0) 70%);
-            top: -100px; left: -50px; z-index: 0; pointer-events: none;
+        /* 顶部深色卡片渐变 - 还原 Season Outlook */
+        .card-dark {
+            background: linear-gradient(135deg, #4b7d85 0%, #6ab29b 100%);
+            color: white;
+            box-shadow: 0 10px 25px rgba(75, 125, 133, 0.3);
         }
 
-        /* 导航动画 */
-        .nav-item { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; color: #94a3b8; position: relative; }
-        .nav-item.active { color: #15803d; transform: translateY(-2px); }
-        .nav-item.active::after {
-            content: ''; position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%);
-            width: 4px; height: 4px; background: #15803d; border-radius: 50%;
+        /* 绿色卡片渐变 - 还原 Prediction */
+        .card-green {
+            background: linear-gradient(135deg, #56ab91 0%, #3a8d79 100%);
+            color: white;
         }
-        
-        /* 模拟器抽屉 */
-        #simulator { transform: translateY(110%); transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+
+        /* 蓝色卡片渐变 - 还原 Finance */
+        .card-blue {
+            background: linear-gradient(135deg, #5c8ab3 0%, #4a7296 100%);
+            color: white;
+        }
+
+        /* 模拟器 */
+        #simulator { transform: translateY(110%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         #simulator.open { transform: translateY(0); }
 
+        /* 隐藏滚动条 */
         ::-webkit-scrollbar { display: none; }
+        
+        /* 底部导航激活态 */
+        .nav-icon { font-size: 24px; transition: all 0.2s; color: #a0aec0; }
+        .nav-item.active .nav-icon { color: #10b981; }
+        .nav-item.active span { color: #10b981; font-weight: 700; }
     </style>
 </head>
 <body>
 
-    <div class="app-container shadow-2xl flex flex-col">
-        <div class="glow-bg"></div>
+    <div class="app-container">
         
-        <div id="simulator" class="fixed bottom-4 left-4 right-4 max-w-[448px] mx-auto bg-slate-900/95 backdrop-blur-xl text-white z-50 p-6 rounded-[32px] shadow-2xl border border-slate-700">
-            <div class="flex justify-between items-center mb-6">
-                <div class="flex items-center space-x-2">
-                    <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
-                    <h4 class="font-bold text-green-400">数据模拟控制台</h4>
-                </div>
-                <button onclick="toggleSim()" class="bg-slate-800 p-2 rounded-full hover:bg-slate-700">✕</button>
+        <div id="simulator" class="absolute bottom-4 left-4 right-4 bg-slate-800/95 backdrop-blur-md text-white z-50 p-5 rounded-2xl shadow-2xl border border-slate-600">
+            <div class="flex justify-between items-center mb-4">
+                <h4 class="font-bold text-green-400 text-sm flex items-center"><i class="ri-equalizer-line mr-2"></i> 数据模拟控制台</h4>
+                <button onclick="toggleSim()" class="text-xs bg-slate-700 hover:bg-slate-600 px-3 py-1 rounded-full transition">关闭</button>
             </div>
-            <div class="space-y-6">
+            <div class="space-y-5">
                 <div>
-                    <div class="flex justify-between text-xs text-slate-400 mb-2">
-                        <span>土壤湿度</span>
-                        <span id="val-moist" class="text-white font-mono">75%</span>
-                    </div>
-                    <input type="range" min="0" max="100" value="75" class="w-full h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-green-500" oninput="updateMoisture(this.value)">
+                    <div class="flex justify-between text-xs text-slate-400 mb-2"><span>土壤湿度 (SOIL MOISTURE)</span><span id="val-moist" class="text-white font-mono font-bold">75%</span></div>
+                    <input type="range" min="0" max="100" value="75" class="w-full h-2 bg-slate-600 rounded-lg appearance-none cursor-pointer accent-green-500" oninput="updateMoisture(this.value)">
                 </div>
                 <div>
-                    <div class="flex justify-between text-xs text-slate-400 mb-2">
-                        <span>预计收益</span>
-                        <span class="text-white font-mono">¥<span id="val-profit">45200</span></span>
-                    </div>
-                    <input type="range" min="10000" max="100000" step="100" value="45200" class="w-full h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-500" oninput="updateProfit(this.value)">
+                    <div class="flex justify-between text-xs text-slate-400 mb-2"><span>预计收益 (REVENUE)</span><span class="text-white font-mono font-bold">¥<span id="val-profit">45200</span></span></div>
+                    <input type="range" min="10000" max="100000" step="100" value="45200" class="w-full h-2 bg-slate-600 rounded-lg appearance-none cursor-pointer accent-blue-500" oninput="updateProfit(this.value)">
                 </div>
             </div>
         </div>
         
-        <header class="pt-10 px-6 pb-2 flex justify-between items-center z-20">
-            <div>
-                <h1 id="pageTitle" class="text-2xl font-black text-slate-800 tracking-tight">禾析智能</h1>
-                <p class="text-[10px] text-green-700 font-bold tracking-widest uppercase flex items-center mt-1">
-                    <span class="w-1.5 h-1.5 bg-green-500 rounded-full mr-1.5"></span> Online System
-                </p>
-            </div>
-            <div class="relative">
-                <img src="https://i.pravatar.cc/100?u=hexi" class="w-11 h-11 rounded-full border-[3px] border-white shadow-lg">
-                <div class="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-white rounded-full"></div>
+        <header class="pt-10 px-6 pb-2 flex justify-between items-center bg-transparent sticky top-0 z-20">
+            <h1 class="text-lg font-black text-slate-700 tracking-wide uppercase">He Xi Intelligent</h1>
+            <div class="flex space-x-4 text-slate-500">
+                <i class="ri-notification-3-line text-xl"></i>
+                <i class="ri-settings-4-line text-xl"></i>
             </div>
         </header>
 
-        <main class="flex-1 relative z-10">
+        <main class="relative z-10">
             
             <div id="home" class="page active">
                 
-                <div class="glass-card p-0 overflow-hidden relative mb-5">
-                    <div class="absolute top-0 right-0 w-32 h-32 bg-yellow-300 rounded-full filter blur-[60px] opacity-40"></div>
-                    <div class="p-6">
-                        <div class="flex justify-between items-start">
+                <div class="card card-dark relative overflow-hidden">
+                    <p class="text-[10px] opacity-80 font-bold uppercase tracking-wider mb-1">Current Season Outlook</p>
+                    <h2 id="statusText" class="text-3xl font-black mb-4">OPTIMAL</h2>
+                    
+                    <div class="flex justify-between items-end">
+                        <div class="flex items-center space-x-2 bg-white/20 px-3 py-1.5 rounded-lg backdrop-blur-sm">
+                            <i class="ri-sun-line text-yellow-300"></i>
+                            <span class="text-xs font-bold">High Sun</span>
+                        </div>
+                        <div class="text-right">
+                            <i class="ri-cloud-windy-line text-2xl opacity-80"></i>
+                            <p class="text-[10px] opacity-70">Low Wind</p>
+                        </div>
+                    </div>
+                    <i class="ri-plant-line absolute -right-4 -bottom-4 text-9xl opacity-10 rotate-12"></i>
+                </div>
+
+                <div class="card flex items-center justify-between">
+                    <div class="relative w-28 h-28 flex-shrink-0">
+                        <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                            <path class="text-slate-100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="3" />
+                            <path id="moistCircle" class="text-emerald-500 transition-all duration-500" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="3" stroke-dasharray="75, 100" stroke-linecap="round" />
+                        </svg>
+                        <div class="absolute inset-0 flex items-center justify-center font-black text-2xl text-slate-700"><span id="moistText">75</span>%</div>
+                    </div>
+                    
+                    <div class="pl-4 flex-1">
+                        <h3 class="text-xs font-black text-slate-400 uppercase tracking-wide mb-1">Soil Moisture Levels</h3>
+                        <p class="text-2xl font-bold text-slate-800 mb-1">75%</p>
+                        <p class="text-[10px] text-slate-400">Biomass Costs: <span class="text-emerald-500 font-bold">$11.008</span></p>
+                        <div class="mt-2 w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
+                            <div class="bg-emerald-500 h-full w-3/4"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wide mb-3 pl-1">Quick Insights</h3>
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="card !p-4 flex items-center justify-between !mb-0 active:scale-95 transition cursor-pointer">
+                        <div class="flex items-center"><i class="ri-bug-line text-emerald-500 text-xl mr-2"></i> <span class="text-xs font-bold text-slate-600">PEST<br>ALERT</span></div>
+                        <i class="ri-arrow-right-s-line text-slate-300"></i>
+                    </div>
+                    <div class="card !p-4 flex items-center justify-between !mb-0 active:scale-95 transition cursor-pointer">
+                        <div class="flex items-center"><i class="ri-flask-line text-emerald-500 text-xl mr-2"></i> <span class="text-xs font-bold text-slate-600">FERTILIZER<br>OPTIMIZATION</span></div>
+                        <i class="ri-arrow-right-s-line text-slate-300"></i>
+                    </div>
+                    <div class="card !p-4 flex items-center justify-between !mb-0 active:scale-95 transition cursor-pointer col-span-2 bg-slate-800 text-white" onclick="document.getElementById('leafInput').click()">
+                        <div class="flex items-center"><i class="ri-camera-lens-line text-green-400 text-xl mr-3"></i> 
                             <div>
-                                <p class="text-xs font-bold text-slate-500 mb-1">今日农事建议</p>
-                                <h2 id="statusText" class="text-3xl font-black text-slate-800">宜 追肥</h2>
-                                <p class="text-xs text-green-700 font-bold mt-2 bg-green-100 inline-block px-2 py-1 rounded-md">生长窗口期 +15%</p>
-                            </div>
-                            <div class="text-right">
-                                <span class="text-4xl">🌤</span>
-                                <p class="text-lg font-bold text-slate-700 mt-1">26°C</p>
+                                <span class="text-xs font-bold block">AI DIAGNOSIS</span>
+                                <span class="text-[10px] text-slate-400">Take a photo to analyze crop health</span>
                             </div>
                         </div>
-                    </div>
-                    <div class="bg-white/50 px-6 py-3 flex justify-between border-t border-white/50">
-                        <div class="text-center"><p class="text-[10px] text-slate-400">降水概率</p><p class="text-xs font-bold text-slate-700">10%</p></div>
-                        <div class="text-center"><p class="text-[10px] text-slate-400">风速</p><p class="text-xs font-bold text-slate-700">2级</p></div>
-                        <div class="text-center"><p class="text-[10px] text-slate-400">日照</p><p class="text-xs font-bold text-slate-700">充足</p></div>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-4 mb-5">
-                    <div class="glass-card p-4 flex flex-col items-center justify-center relative overflow-hidden">
-                        <div class="absolute inset-0 bg-green-50/50 z-0"></div>
-                        <div class="relative z-10 text-center">
-                            <div class="relative w-20 h-20 mb-2 mx-auto">
-                                <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-                                    <circle cx="18" cy="18" r="16" fill="none" stroke="#e2e8f0" stroke-width="3" />
-                                    <circle id="moistCircle" cx="18" cy="18" r="16" fill="none" stroke="#10b981" stroke-width="3" stroke-dasharray="75, 100" stroke-linecap="round" />
-                                </svg>
-                                <div class="absolute inset-0 flex items-center justify-center font-black text-lg text-slate-700"><span id="moistText">75</span>%</div>
-                            </div>
-                            <p class="text-xs font-bold text-slate-500">土壤湿度</p>
-                        </div>
-                    </div>
-                    <div class="grid grid-rows-2 gap-3">
-                        <div class="glass-card p-3 flex items-center justify-between !mb-0">
-                            <div><p class="text-[10px] text-slate-400">氮磷钾</p><p class="text-sm font-bold text-slate-700">正常</p></div>
-                            <span class="text-lg">🧪</span>
-                        </div>
-                        <div class="glass-card p-3 flex items-center justify-between !mb-0">
-                            <div><p class="text-[10px] text-slate-400">PH值</p><p class="text-sm font-bold text-slate-700">6.8</p></div>
-                            <span class="text-lg">💧</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="glass-card p-1 bg-gradient-to-r from-slate-900 to-slate-800 text-white !border-none">
-                    <div class="p-5">
-                        <div class="flex justify-between items-center mb-4">
-                            <h3 class="text-sm font-bold flex items-center"><span class="mr-2 text-xl">📸</span> AI 慧眼诊断</h3>
-                            <span class="text-[10px] bg-white/20 px-2 py-0.5 rounded text-white/80">Ver 4.0</span>
-                        </div>
+                        <i class="ri-arrow-right-s-line text-white"></i>
                         <input type="file" id="leafInput" accept="image/*" capture="camera" class="hidden">
-                        <button onclick="document.getElementById('leafInput').click()" class="w-full bg-green-500 hover:bg-green-400 text-white py-3.5 rounded-xl font-bold text-sm shadow-[0_4px_14px_rgba(34,197,94,0.4)] transition active:scale-95">
-                            启动摄像头识别
-                        </button>
-                        <div id="previewContainer" class="hidden mt-4 bg-white/10 rounded-xl p-2 text-center">
-                            <img id="leafPreview" class="w-full h-32 object-cover rounded-lg mb-2">
-                            <p id="analysisResult" class="text-xs text-green-300 font-mono animate-pulse">正在上传云端分析...</p>
+                    </div>
+                </div>
+                
+                <div id="previewContainer" class="hidden mt-3 mx-1">
+                    <div class="bg-white p-2 rounded-xl shadow-sm flex items-center space-x-3">
+                        <img id="leafPreview" class="w-12 h-12 object-cover rounded-lg">
+                        <div>
+                            <p class="text-[10px] text-slate-400 uppercase font-bold">AI Analysis Result</p>
+                            <p id="analysisResult" class="text-xs font-bold text-emerald-600">Processing...</p>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div id="community" class="page">
-                <div class="glass-card p-4 flex items-center space-x-3 mb-6 sticky top-0 z-10 shadow-sm">
-                    <div class="w-9 h-9 bg-green-100 rounded-full flex items-center justify-center text-sm font-bold text-green-700">我</div>
-                    <input id="postInput" type="text" placeholder="分享田间地头的新鲜事..." class="flex-1 bg-slate-50 border-none rounded-full px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500/50">
-                    <button onclick="addPost()" class="w-9 h-9 bg-green-600 rounded-full text-white flex items-center justify-center shadow-md active:scale-90 transition">➤</button>
+            <div id="prediction" class="page">
+                <div class="card card-green relative overflow-hidden">
+                    <p class="text-[10px] opacity-80 font-bold uppercase tracking-wider mb-1">Next Harvest Prediction</p>
+                    <h2 class="text-4xl font-black mb-1">+15%</h2>
+                    <p class="text-[10px] opacity-80 mb-4">Increase vs average</p>
+                    
+                    <div class="flex space-x-4">
+                        <div class="flex items-center space-x-1 text-[10px] bg-white/20 px-2 py-1 rounded">
+                            <i class="ri-water-flash-line"></i> <span>NEEDS WATER</span>
+                        </div>
+                        <div class="flex items-center space-x-1 text-[10px] bg-white/20 px-2 py-1 rounded">
+                            <i class="ri-leaf-line"></i> <span>LOW PESTS</span>
+                        </div>
+                    </div>
+                    <i class="ri-bar-chart-grouped-line absolute -right-2 top-4 text-8xl opacity-10"></i>
                 </div>
 
-                <div id="postList" class="space-y-5">
-                    <div class="glass-card p-5 post-card">
-                        <div class="flex justify-between items-start mb-3">
-                            <div class="flex items-center">
-                                <img src="https://i.pravatar.cc/100?u=zhang" class="w-10 h-10 rounded-full mr-3 border border-slate-100">
-                                <div>
-                                    <p class="text-sm font-bold text-slate-800">辽宁老张 <span class="text-xs font-normal text-slate-400 ml-1">种植大户</span></p>
-                                    <p class="text-[10px] text-slate-400">2小时前 · 营口</p>
-                                </div>
-                            </div>
-                            <button class="text-slate-300">•••</button>
-                        </div>
-                        <p class="text-sm text-slate-600 leading-relaxed mb-3">今年的气候确实反常，多亏了禾析的数据支撑，提前做了排水，不然这几亩地全泡了。大家看看这根系长得咋样？</p>
-                        <div class="h-32 bg-slate-100 rounded-xl mb-4 w-full bg-cover bg-center relative" style="background-image: url('https://images.unsplash.com/photo-1574943320219-55edeb70538d?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80');">
-                            <span class="absolute bottom-2 right-2 bg-black/50 text-white text-[10px] px-2 py-0.5 rounded">JPG</span>
-                        </div>
-                        <div class="flex items-center space-x-6 border-t border-slate-100 pt-3">
-                            <button onclick="toggleLike(this)" class="like-btn flex items-center space-x-1.5 text-slate-400 text-xs font-bold group">
-                                <span class="group-hover:scale-110 transition">❤</span> <span class="count">24</span>
-                            </button>
-                            <button class="flex items-center space-x-1.5 text-slate-400 text-xs font-bold">
-                                <span>💬</span> <span>8条评论</span>
-                            </button>
-                        </div>
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wide mb-3 pl-1">Crop Health Analytics</h3>
+                <div class="card">
+                    <div class="flex justify-between items-center mb-4">
+                        <p class="text-xs font-bold text-slate-700">Growth Progress</p>
+                        <span class="text-[10px] text-emerald-500 font-bold bg-emerald-50 px-2 py-0.5 rounded">Live Data</span>
+                    </div>
+                    <canvas id="growthChart" height="200"></canvas>
+                    <div class="flex justify-between mt-4 text-[10px] text-slate-400 font-bold uppercase">
+                        <div class="flex items-center"><span class="w-2 h-2 bg-emerald-400 rounded-full mr-1"></span> Phantom</div>
+                        <div class="flex items-center"><span class="w-2 h-2 bg-slate-300 rounded-full mr-1"></span> Normal</div>
+                        <div>28%</div>
                     </div>
                 </div>
             </div>
 
             <div id="finance" class="page">
-                <div class="glass-card p-6 text-center">
-                    <h3 class="text-sm font-bold text-slate-500 uppercase tracking-widest mb-6">成本构成分析</h3>
-                    <div class="flex justify-center relative">
-                        <canvas id="financeChart" style="max-width: 220px;"></canvas>
-                        <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                            <span class="text-xs text-slate-400">总投入</span>
-                            <span class="text-lg font-black text-slate-700">12W</span>
+                <div class="card card-blue relative overflow-hidden">
+                    <h3 class="text-xs font-bold opacity-90 uppercase tracking-wide mb-4">Financial Projections</h3>
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-[10px] opacity-70 mb-1">Total Revenue</p>
+                            <p class="text-2xl font-bold">¥<span id="profitDisplay">45,200</span></p>
+                            <div class="flex items-center mt-2 text-[10px]">
+                                <span class="w-2 h-2 bg-yellow-400 rounded-sm mr-1"></span> Cost
+                                <span class="w-2 h-2 bg-white rounded-sm ml-2 mr-1"></span> Profit
+                            </div>
+                        </div>
+                        <div class="relative w-24 h-24">
+                            <canvas id="financePieChart"></canvas>
+                            <div class="absolute inset-0 flex items-center justify-center text-xs font-bold">20%</div>
                         </div>
                     </div>
                 </div>
-                
-                <div class="glass-card p-6 border-l-4 border-green-500">
-                    <div class="flex justify-between items-end mb-2">
-                        <p class="text-xs text-slate-400 font-bold uppercase">本季预计净收益</p>
-                        <span class="text-xs text-green-600 bg-green-50 px-2 py-0.5 rounded">+12.5%</span>
-                    </div>
-                    <p class="text-4xl font-black text-slate-800 tracking-tight">¥<span id="profitDisplay">45,200</span></p>
-                    <div class="w-full bg-slate-100 h-1.5 rounded-full mt-4 overflow-hidden">
-                        <div class="bg-green-500 h-full rounded-full" style="width: 75%"></div>
-                    </div>
-                    <p class="text-[10px] text-slate-400 mt-2 text-right">已达成预期目标的 75%</p>
+
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wide mb-3 pl-1">Revenue Forecast</h3>
+                <div class="card">
+                    <canvas id="revenueBarChart" height="180"></canvas>
                 </div>
 
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="glass-card p-4 text-center">
-                        <p class="text-xs text-slate-400">当前市价</p>
-                        <p class="text-lg font-bold text-slate-800 mt-1">¥2.8/斤</p>
+                <div class="card !p-0 overflow-hidden">
+                    <div class="p-4 border-b border-slate-50 flex justify-between items-center">
+                        <span class="text-xs font-bold text-slate-600">Optimistic</span>
+                        <span class="text-xs font-bold text-emerald-500">$3,200</span>
                     </div>
-                    <div class="glass-card p-4 text-center">
-                        <p class="text-xs text-slate-400">建议售出</p>
-                        <p class="text-lg font-bold text-green-600 mt-1">10月下旬</p>
+                    <div class="p-4 border-b border-slate-50 flex justify-between items-center">
+                        <span class="text-xs font-bold text-slate-600">Realistic</span>
+                        <span class="text-xs font-bold text-blue-500">$2,800</span>
+                    </div>
+                    <div class="p-4 flex justify-between items-center">
+                        <span class="text-xs font-bold text-slate-600">Pessimistic</span>
+                        <span class="text-xs font-bold text-slate-400">$1,500</span>
                     </div>
                 </div>
             </div>
 
-            <div id="profile" class="page">
-                <div class="glass-card p-6 flex items-center space-x-5">
-                    <div class="w-20 h-20 rounded-full p-1 bg-gradient-to-tr from-green-400 to-blue-500">
-                        <div class="w-full h-full bg-white rounded-full flex items-center justify-center text-4xl overflow-hidden">
-                            <img src="https://i.pravatar.cc/150?u=hexi" class="w-full h-full object-cover">
-                        </div>
-                    </div>
+            <div id="settings" class="page">
+                <div class="card flex items-center space-x-4">
+                    <img src="https://i.pravatar.cc/150?u=hexi" class="w-12 h-12 rounded-full border-2 border-slate-100">
                     <div>
-                        <h3 class="font-black text-slate-800 text-xl">李华</h3>
-                        <p class="text-xs text-slate-500 font-bold uppercase mt-1">高级管理员 · ID 8848</p>
-                        <div class="flex space-x-2 mt-3">
-                            <span class="text-[10px] bg-slate-100 px-2 py-1 rounded text-slate-500">📍 辽宁试验田</span>
-                            <span class="text-[10px] bg-green-100 px-2 py-1 rounded text-green-700">已认证</span>
-                        </div>
+                        <h3 class="font-bold text-slate-800 text-sm">Li Hua (李华)</h3>
+                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Farmer ID: #4128</p>
+                    </div>
+                    <div class="ml-auto text-emerald-500"><i class="ri-qr-code-line text-xl"></i></div>
+                </div>
+
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wide mb-3 pl-1">Account Settings</h3>
+                <div class="card !p-0 overflow-hidden">
+                    <div class="p-4 border-b border-slate-50 flex items-center hover:bg-slate-50 cursor-pointer">
+                        <i class="ri-user-line text-slate-400 mr-3 text-lg"></i>
+                        <div class="flex-1 text-xs font-bold text-slate-600">Edit Profile</div>
+                    </div>
+                    <div class="p-4 border-b border-slate-50 flex items-center hover:bg-slate-50 cursor-pointer">
+                        <i class="ri-bank-card-line text-slate-400 mr-3 text-lg"></i>
+                        <div class="flex-1 text-xs font-bold text-slate-600">Linked Bank Accounts</div>
+                    </div>
+                    <div class="p-4 border-b border-slate-50 flex items-center hover:bg-slate-50 cursor-pointer">
+                        <i class="ri-notification-badge-line text-slate-400 mr-3 text-lg"></i>
+                        <div class="flex-1 text-xs font-bold text-slate-600">Push Notifications</div>
+                    </div>
+                    <div class="p-4 flex items-center hover:bg-slate-50 cursor-pointer" onclick="toggleSim()">
+                        <i class="ri-equalizer-line text-indigo-500 mr-3 text-lg"></i>
+                        <div class="flex-1 text-xs font-bold text-indigo-600">Open Simulator</div>
                     </div>
                 </div>
 
-                <div class="space-y-3">
-                    <button onclick="toggleSim()" class="w-full bg-slate-800 text-white p-5 rounded-2xl text-sm font-bold flex justify-between items-center shadow-xl group">
-                        <span class="flex items-center"><span class="text-xl mr-3 group-hover:rotate-12 transition">🚀</span> 打开演示模拟器</span>
-                        <span class="text-slate-400">→</span>
-                    </button>
-                    
-                    <div class="glass-card p-0 overflow-hidden">
-                        <div class="p-4 border-b border-slate-100 flex justify-between items-center text-sm font-bold text-slate-600 cursor-pointer hover:bg-slate-50">
-                            <span>🌾 地块与传感器管理</span><span>›</span>
-                        </div>
-                        <div class="p-4 border-b border-slate-100 flex justify-between items-center text-sm font-bold text-slate-600 cursor-pointer hover:bg-slate-50">
-                            <span>📊 导出年度报表</span><span>›</span>
-                        </div>
-                        <div class="p-4 text-red-500 font-bold text-sm text-center cursor-pointer hover:bg-red-50 transition">
-                            退出登录
-                        </div>
-                    </div>
-                </div>
+                <button class="w-full bg-emerald-500 text-white py-3 rounded-xl font-bold text-xs shadow-lg mt-4">LOG OUT</button>
+                <p class="text-[10px] text-slate-300 text-center mt-4">App Version 1.0.4</p>
             </div>
+
         </main>
 
-        <div class="fixed bottom-6 left-6 right-6 z-40">
-            <nav class="bg-white/90 backdrop-blur-md border border-white/40 rounded-full shadow-[0_20px_40px_-10px_rgba(0,0,0,0.1)] flex justify-around p-3 px-6">
-                <div onclick="showPage('home', '禾析智能', this)" class="nav-item flex flex-col items-center active group">
-                    <span class="text-2xl mb-1 group-hover:scale-110 transition">🏠</span>
-                </div>
-                <div onclick="showPage('community', '农友社区', this)" class="nav-item flex flex-col items-center group">
-                    <span class="text-2xl mb-1 group-hover:scale-110 transition">💬</span>
-                </div>
-                <div onclick="showPage('finance', '财务决策', this)" class="nav-item flex flex-col items-center group">
-                    <span class="text-2xl mb-1 group-hover:scale-110 transition">💰</span>
-                </div>
-                <div onclick="showPage('profile', '账户中心', this)" class="nav-item flex flex-col items-center group">
-                    <span class="text-2xl mb-1 group-hover:scale-110 transition">👤</span>
-                </div>
-            </nav>
-        </div>
+        <nav class="fixed bottom-0 w-full max-w-[414px] bg-white border-t border-slate-100 flex justify-around py-3 px-2 z-40 pb-6">
+            <div onclick="showPage('home', this)" class="nav-item active flex flex-col items-center cursor-pointer w-16">
+                <i class="ri-home-5-line nav-icon mb-1"></i>
+                <span class="text-[9px] font-medium text-slate-400">Home</span>
+            </div>
+            <div onclick="showPage('prediction', this)" class="nav-item flex flex-col items-center cursor-pointer w-16">
+                <i class="ri-bar-chart-box-line nav-icon mb-1"></i>
+                <span class="text-[9px] font-medium text-slate-400">Metrics</span>
+            </div>
+            <div onclick="showPage('finance', this)" class="nav-item flex flex-col items-center cursor-pointer w-16">
+                <i class="ri-pie-chart-line nav-icon mb-1"></i>
+                <span class="text-[9px] font-medium text-slate-400">Harvest</span>
+            </div>
+            <div onclick="showPage('settings', this)" class="nav-item flex flex-col items-center cursor-pointer w-16">
+                <i class="ri-user-3-line nav-icon mb-1"></i>
+                <span class="text-[9px] font-medium text-slate-400">Settings</span>
+            </div>
+        </nav>
     </div>
 
     <script>
         // 页面切换
-        function showPage(pageId, title, element) {
+        function showPage(pageId, element) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById(pageId).classList.add('active');
             
-            // 标题动画
-            const titleEl = document.getElementById('pageTitle');
-            titleEl.style.opacity = 0;
-            setTimeout(() => { titleEl.innerText = title; titleEl.style.opacity = 1; }, 200);
-
             document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
             element.classList.add('active');
         }
 
         // 模拟器
-        function toggleSim() { 
-            const sim = document.getElementById('simulator');
-            sim.classList.toggle('open');
-        }
+        function toggleSim() { document.getElementById('simulator').classList.toggle('open'); }
         
         function updateMoisture(val) {
             document.getElementById('val-moist').innerText = val + "%";
             document.getElementById('moistText').innerText = val;
             document.getElementById('moistCircle').setAttribute('stroke-dasharray', `${val}, 100`);
-            
-            // 颜色动态变化
-            const circle = document.getElementById('moistCircle');
             const status = document.getElementById('statusText');
-            if(val < 30) { 
-                circle.setAttribute('stroke', '#ef4444'); 
-                status.innerText = "⚠️ 需浇水"; 
-            } else if(val > 85) { 
-                circle.setAttribute('stroke', '#3b82f6'); 
-                status.innerText = "🌧 需排水"; 
-            } else { 
-                circle.setAttribute('stroke', '#10b981'); 
-                status.innerText = "宜 追肥"; 
-            }
+            if(val < 30) status.innerText = "WARNING";
+            else if(val > 80) status.innerText = "HIGH WET";
+            else status.innerText = "OPTIMAL";
         }
 
         function updateProfit(val) {
@@ -341,81 +321,83 @@
             document.getElementById('profitDisplay').innerText = Number(val).toLocaleString();
         }
 
-        // 社交
-        function toggleLike(btn) {
-            const countSpan = btn.querySelector('.count');
-            const icon = btn.querySelector('span');
-            let count = parseInt(countSpan.innerText);
-            
-            if(btn.style.color === 'rgb(239, 68, 68)') { // red-500
-                btn.style.color = '#94a3b8';
-                countSpan.innerText = count - 1;
-            } else {
-                btn.style.color = '#ef4444';
-                countSpan.innerText = count + 1;
-                // 弹跳动画
-                icon.style.transform = 'scale(1.4)';
-                setTimeout(() => icon.style.transform = 'scale(1)', 200);
-            }
-        }
-
-        function addPost() {
-            const input = document.getElementById('postInput');
-            if (!input.value.trim()) return;
-            
-            const list = document.getElementById('postList');
-            const newCard = document.createElement('div');
-            newCard.className = 'glass-card p-5 post-card mb-4';
-            newCard.innerHTML = `
-                <div class="flex justify-between items-start mb-3">
-                    <div class="flex items-center">
-                        <img src="https://i.pravatar.cc/100?u=me" class="w-10 h-10 rounded-full mr-3 border border-slate-100">
-                        <div><p class="text-sm font-bold text-slate-800">我 <span class="text-xs font-normal text-slate-400 ml-1">刚刚</span></p></div>
-                    </div>
-                </div>
-                <p class="text-sm text-slate-600 leading-relaxed mb-3">${input.value}</p>
-                <div class="flex items-center space-x-6 border-t border-slate-100 pt-3">
-                    <button onclick="toggleLike(this)" class="like-btn flex items-center space-x-1.5 text-slate-400 text-xs font-bold">
-                        <span>❤</span> <span class="count">0</span>
-                    </button>
-                </div>`;
-            
-            list.prepend(newCard);
-            input.value = '';
-        }
-
-        // 图表初始化
-        new Chart(document.getElementById('financeChart'), {
-            type: 'doughnut',
-            data: { 
-                labels: ['种子', '肥料', '人工', '农机'], 
-                datasets: [{ 
-                    data: [35, 25, 20, 20], 
-                    backgroundColor: ['#22c55e', '#3b82f6', '#f59e0b', '#6366f1'], 
-                    borderWidth: 0,
-                    hoverOffset: 10
-                }] 
-            },
-            options: { 
-                plugins: { legend: { display: false } }, 
-                cutout: '75%',
-                layout: { padding: 10 }
-            }
-        });
-
         // 拍照逻辑
         document.getElementById('leafInput').onchange = function(e) {
             const file = e.target.files[0];
             if (file) {
                 document.getElementById('leafPreview').src = URL.createObjectURL(file);
                 document.getElementById('previewContainer').classList.remove('hidden');
-                setTimeout(() => { 
-                    document.getElementById('analysisResult').innerText = "✅ 识别完成：叶绿素含量正常，无病害。"; 
-                    document.getElementById('analysisResult').classList.remove('animate-pulse');
-                    document.getElementById('analysisResult').classList.add('font-bold');
-                }, 2000);
+                setTimeout(() => { document.getElementById('analysisResult').innerText = "✅ HEALTHY"; }, 1500);
             }
         };
+
+        // --- 图表初始化 (Chart.js) ---
+
+        // 1. Growth Chart (Line)
+        const ctxGrowth = document.getElementById('growthChart').getContext('2d');
+        new Chart(ctxGrowth, {
+            type: 'line',
+            data: {
+                labels: ['J', 'F', 'M', 'A', 'M', 'J', 'J'],
+                datasets: [{
+                    data: [300, 450, 400, 600, 550, 750, 800],
+                    borderColor: '#10b981', // Emerald 500
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    borderWidth: 2,
+                    tension: 0.4,
+                    fill: true,
+                    pointRadius: 3,
+                    pointBackgroundColor: '#fff',
+                    pointBorderColor: '#10b981'
+                }]
+            },
+            options: {
+                plugins: { legend: { display: false } },
+                scales: { 
+                    y: { display: false }, 
+                    x: { grid: { display: false }, ticks: { font: { size: 9 } } } 
+                }
+            }
+        });
+
+        // 2. Finance Pie Chart (Doughnut)
+        const ctxPie = document.getElementById('financePieChart').getContext('2d');
+        new Chart(ctxPie, {
+            type: 'doughnut',
+            data: {
+                labels: ['Profit', 'Cost'],
+                datasets: [{
+                    data: [20, 80],
+                    backgroundColor: ['#fbbf24', '#ffffff'], // Yellow, White
+                    borderWidth: 0,
+                    hoverOffset: 4
+                }]
+            },
+            options: { cutout: '75%', plugins: { legend: { display: false } } }
+        });
+
+        // 3. Revenue Bar Chart
+        const ctxBar = document.getElementById('revenueBarChart').getContext('2d');
+        new Chart(ctxBar, {
+            type: 'bar',
+            data: {
+                labels: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
+                datasets: [{
+                    data: [10, 25, 15, 30, 20, 45, 35],
+                    backgroundColor: [
+                        '#e2e8f0', '#3b82f6', '#e2e8f0', '#fbbf24', '#e2e8f0', '#10b981', '#e2e8f0'
+                    ],
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                plugins: { legend: { display: false } },
+                scales: { 
+                    y: { display: false }, 
+                    x: { grid: { display: false }, ticks: { font: { size: 9 } } } 
+                }
+            }
+        });
     </script>
 </body>
 </html>
