@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>禾析智能 - V7.0 全能交互版</title>
+    <title>禾析智能 - V10.0 深度管理版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
@@ -11,32 +11,32 @@
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #f0fdf4; display: flex; justify-content: center; min-height: 100vh; margin: 0; }
         .app-container { width: 100%; max-width: 414px; background: #f1f5f9; position: relative; overflow: hidden; min-height: 100vh; box-shadow: 0 0 60px rgba(0,0,0,0.15); }
-        .page { display: none; height: 100vh; overflow-y: auto; padding: 20px; padding-bottom: 110px; scroll-behavior: smooth; }
+        .page { display: none; height: 100vh; overflow-y: auto; padding: 20px; padding-bottom: 120px; scroll-behavior: smooth; }
         .page.active { display: block; }
         
-        /* 卡片基础 */
-        .card { background: white; border-radius: 20px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); margin-bottom: 16px; padding: 20px; border: 1px solid rgba(255,255,255,0.7); transition: transform 0.1s; position: relative; overflow: hidden; }
+        .card { background: white; border-radius: 20px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); margin-bottom: 16px; padding: 20px; border: 1px solid rgba(255,255,255,0.7); transition: transform 0.1s; position: relative; }
         .card:active { transform: scale(0.99); }
         .clickable { cursor: pointer; transition: background-color 0.2s; }
         .clickable:active { background-color: #f8fafc; }
         
-        /* 特殊卡片 */
-        .card-dark { background: linear-gradient(135deg, #334155 0%, #475569 100%); color: white; }
-        .card-blue { background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%); color: white; }
-        
-        /* 弹窗与遮罩 */
+        /* 状态开关样式 */
+        .switch { width: 36px; height: 20px; background: #cbd5e1; border-radius: 20px; position: relative; transition: background 0.3s; cursor: pointer; }
+        .switch.on { background: #10b981; }
+        .switch-dot { width: 16px; height: 16px; background: white; border-radius: 50%; position: absolute; top: 2px; left: 2px; transition: left 0.3s; }
+        .switch.on .switch-dot { left: 18px; }
+
+        /* 弹窗 */
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 60; display: none; align-items: center; justify-content: center; backdrop-filter: blur(4px); opacity: 0; transition: opacity 0.3s; }
         .modal-overlay.open { display: flex; opacity: 1; }
-        .modal-content { background: white; width: 85%; max-width: 320px; border-radius: 24px; padding: 24px; transform: scale(0.9); transition: transform 0.3s; box-shadow: 0 20px 40px rgba(0,0,0,0.25); }
-        .modal-overlay.open .modal-content { transform: scale(1); }
+        .modal-content { background: white; width: 85%; max-width: 320px; border-radius: 28px; padding: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.25); }
 
+        /* 隐藏滚动条 */
+        ::-webkit-scrollbar { display: none; }
+        .nav-item.active i, .nav-item.active span { color: #059669; font-weight: 800; }
+        
         /* 模拟器 */
         #simulator { transform: translateY(110%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         #simulator.open { transform: translateY(0); }
-        
-        /* 滚动条隐藏 */
-        ::-webkit-scrollbar { display: none; }
-        .nav-item.active i, .nav-item.active span { color: #059669; font-weight: 800; }
     </style>
 </head>
 <body>
@@ -46,166 +46,159 @@
         <div id="modal" class="modal-overlay" onclick="closeModal(event)">
             <div class="modal-content" onclick="event.stopPropagation()">
                 <div class="flex justify-between items-center mb-4">
-                    <h3 id="modalTitle" class="text-lg font-bold text-slate-800">Title</h3>
+                    <h3 id="modalTitle" class="text-lg font-bold text-slate-800">标题</h3>
                     <button onclick="closeModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200">✕</button>
                 </div>
-                <div id="modalBody" class="text-sm text-slate-600">Content</div>
-                <button onclick="closeModal()" class="w-full mt-6 bg-slate-900 text-white py-3 rounded-xl font-bold text-xs active:scale-95 transition">确认 (OK)</button>
+                <div id="modalBody" class="text-sm text-slate-600 leading-relaxed mb-6">内容加载中...</div>
+                <div id="modalActions" class="flex space-x-3">
+                    <button onclick="closeModal()" class="flex-1 bg-slate-100 text-slate-500 py-3 rounded-xl font-bold text-xs">取消</button>
+                    <button id="modalConfirmBtn" onclick="closeModal()" class="flex-1 bg-slate-900 text-white py-3 rounded-xl font-bold text-xs">确定</button>
+                </div>
             </div>
         </div>
 
-        <div id="toast" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-slate-900/90 text-white px-6 py-3 rounded-full text-sm font-bold opacity-0 pointer-events-none transition-opacity z-[70] shadow-xl flex items-center whitespace-nowrap">
-            <i class="ri-checkbox-circle-line mr-2 text-green-400"></i> <span id="toastMsg">Success</span>
+        <div id="toast" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-slate-900/90 text-white px-6 py-3 rounded-full text-sm font-bold opacity-0 pointer-events-none transition-opacity z-[70] shadow-xl flex items-center">
+            <i class="ri-refresh-line animate-spin mr-2 text-green-400" id="toastIcon"></i> <span id="toastMsg">正在同步</span>
         </div>
 
         <div id="simulator" class="absolute bottom-4 left-4 right-4 bg-slate-800/95 backdrop-blur-md text-white z-50 p-5 rounded-3xl shadow-2xl border border-slate-600">
             <div class="flex justify-between items-center mb-4">
-                <h4 class="font-bold text-green-400 text-sm flex items-center"><i class="ri-equalizer-line mr-2"></i> 数据模拟控制台</h4>
-                <button onclick="toggleSim()" class="text-xs bg-slate-700 hover:bg-slate-600 px-3 py-1 rounded-full transition">收起</button>
+                <h4 class="font-bold text-green-400 text-sm flex items-center"><i class="ri-equalizer-line mr-2"></i> 模拟控制台</h4>
+                <button onclick="toggleSim()" class="text-xs bg-slate-700 px-3 py-1 rounded-full">收起</button>
             </div>
             <div class="space-y-4">
                 <div>
-                    <div class="flex justify-between text-xs text-slate-400 mb-1"><span>总收入 (Revenue)</span><span class="text-emerald-400 font-mono font-bold">¥<span id="val-rev">45200</span></span></div>
+                    <div class="flex justify-between text-xs text-slate-400 mb-1"><span>总收入</span><span class="text-emerald-400 font-mono font-bold">¥<span id="val-rev">45200</span></span></div>
                     <input type="range" min="30000" max="80000" step="1000" value="45200" class="w-full h-2 bg-slate-600 rounded-lg appearance-none cursor-pointer accent-emerald-500" oninput="updateSimulation()">
                 </div>
                 <div>
-                    <div class="flex justify-between text-xs text-slate-400 mb-1"><span>运营成本 (Cost)</span><span class="text-red-400 font-mono font-bold">¥<span id="val-cost">20000</span></span></div>
+                    <div class="flex justify-between text-xs text-slate-400 mb-1"><span>成本</span><span class="text-red-400 font-mono font-bold">¥<span id="val-cost">20000</span></span></div>
                     <input type="range" min="10000" max="40000" step="1000" value="20000" class="w-full h-2 bg-slate-600 rounded-lg appearance-none cursor-pointer accent-red-500" oninput="updateSimulation()">
                 </div>
             </div>
         </div>
         
-        <header class="pt-12 px-6 pb-4 flex justify-between items-center bg-transparent sticky top-0 z-20 backdrop-blur-sm">
+        <header class="pt-12 px-6 pb-4 flex justify-between items-center sticky top-0 z-20 backdrop-blur-sm">
             <div>
                 <h1 class="text-xl font-black text-slate-800 tracking-tight">HE XI <span class="text-emerald-600">AI</span></h1>
-                <div class="flex items-center space-x-1 mt-0.5">
-                    <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span><p class="text-[10px] text-slate-500 font-bold uppercase tracking-wide">System Online</p>
-                </div>
+                <p class="text-[9px] text-slate-400 font-bold uppercase mt-0.5" id="headerField">Control Center • Area A</p>
             </div>
-            <div class="flex space-x-3 text-slate-500">
-                <button onclick="showNotifications()" class="w-10 h-10 bg-white rounded-full shadow-sm flex items-center justify-center active:scale-95 transition relative">
-                    <i class="ri-notification-3-line text-lg"></i><span class="absolute top-3 right-3 w-2 h-2 bg-red-500 rounded-full border border-white"></span>
-                </button>
-                <button onclick="toggleSim()" class="w-10 h-10 bg-slate-800 text-white rounded-full shadow-sm flex items-center justify-center active:scale-95 transition"><i class="ri-equalizer-line text-lg"></i></button>
+            <div class="flex space-x-3">
+                <button onclick="toggleSim()" class="w-10 h-10 bg-white rounded-full shadow-sm flex items-center justify-center active:scale-90 transition"><i class="ri-equalizer-line text-lg text-slate-600"></i></button>
             </div>
         </header>
 
         <main class="relative z-10">
             
             <div id="home" class="page active">
-                <div class="card card-dark clickable" onclick="showModal('Season Outlook', '当前积温 1200℃，降水正常。建议本周进行第二次追肥作业。')">
-                    <div class="flex justify-between items-start mb-6 relative z-10">
-                        <div>
-                            <p class="text-[10px] opacity-60 font-bold uppercase mb-1">Season Outlook</p>
-                            <h2 class="text-3xl font-black text-white">OPTIMAL</h2>
-                            <p class="text-[10px] text-emerald-300 font-bold mt-1 bg-emerald-900/50 px-2 py-0.5 rounded w-fit">Click for Details</p>
-                        </div>
-                        <i class="ri-sun-cloudy-line text-4xl text-yellow-300"></i>
+                <div class="card card-dark">
+                    <p class="text-[10px] text-emerald-400 font-bold uppercase mb-1">AI 视觉诊断</p>
+                    <h2 class="text-xl font-black text-white">Crop Health Check</h2>
+                    <div id="uploadZone" onclick="document.getElementById('imgInput').click()" class="bg-white/5 border-2 border-dashed border-white/20 rounded-xl h-24 flex flex-col items-center justify-center cursor-pointer mt-4">
+                        <i class="ri-image-add-line text-2xl text-emerald-400 mb-1"></i>
+                        <p class="text-xs text-slate-300">点击上传照片</p>
                     </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-3 mb-4">
-                    <div class="card !mb-0 flex flex-col items-center justify-center py-6 relative overflow-hidden clickable" onclick="toggleSim()">
-                        <div class="relative w-24 h-24 mb-2">
-                            <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-                                <path class="text-slate-100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="3" />
-                                <path id="moistCircle" class="text-emerald-500 transition-all duration-500" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="3" stroke-dasharray="75, 100" stroke-linecap="round" />
-                            </svg>
-                            <div class="absolute inset-0 flex items-center justify-center font-black text-xl text-slate-800">75%</div>
-                        </div>
-                        <p class="text-[10px] font-bold text-slate-400 uppercase">Soil Moisture</p>
-                    </div>
-                    <div class="grid grid-rows-2 gap-3">
-                        <div class="card !mb-0 !p-3 flex flex-col justify-center clickable" onclick="showModal('Nitrogen Level', '当前氮含量充足，无需额外施加氮肥。')">
-                            <div class="flex justify-between items-center mb-1"><span class="text-[9px] text-slate-400 font-bold uppercase">Nitrogen</span><i class="ri-flask-fill text-blue-500 text-xs"></i></div>
-                            <p class="text-lg font-black text-slate-700">High</p>
-                            <div class="w-full bg-slate-100 h-1 mt-1 rounded-full"><div class="bg-blue-500 w-[80%] h-full rounded-full"></div></div>
-                        </div>
-                        <div class="card !mb-0 !p-3 flex flex-col justify-center clickable" onclick="showModal('PH Level', 'PH值为 6.8，呈微酸性，非常适合水稻生长。')">
-                            <div class="flex justify-between items-center mb-1"><span class="text-[9px] text-slate-400 font-bold uppercase">PH Level</span><i class="ri-drop-fill text-purple-500 text-xs"></i></div>
-                            <p class="text-lg font-black text-slate-700">6.8</p>
-                            <div class="w-full bg-slate-100 h-1 mt-1 rounded-full"><div class="bg-purple-500 w-[60%] h-full rounded-full"></div></div>
-                        </div>
-                    </div>
+                    <input type="file" id="imgInput" accept="image/*" class="hidden" onchange="handleAIUpload(this)">
                 </div>
             </div>
 
             <div id="prediction" class="page">
-                <div class="card card-green relative overflow-hidden clickable" onclick="showToast('预测模型已校准')">
-                    <p class="text-[10px] opacity-80 font-bold uppercase tracking-wider mb-1">Yield Prediction</p>
-                    <h2 class="text-4xl font-black mb-1">+15%</h2>
-                    <div class="mt-4 flex space-x-3">
-                        <span class="text-[9px] bg-white/20 px-2 py-1 rounded font-bold">High Confidence</span>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="flex justify-between items-center mb-4"><p class="text-xs font-bold text-slate-700">Growth Progress</p><span class="text-[10px] text-emerald-500 font-bold bg-emerald-50 px-2 py-0.5 rounded">Live</span></div>
-                    <canvas id="growthChart" height="200"></canvas>
+                <div class="card bg-emerald-600 text-white">
+                    <h2 class="text-4xl font-black">+15.4%</h2>
+                    <p class="text-xs opacity-80">预期收益提升</p>
                 </div>
             </div>
 
             <div id="finance" class="page">
-                
-                <div class="card card-blue relative overflow-hidden clickable" onclick="toggleSim()">
-                    <h3 class="text-xs font-bold opacity-90 uppercase tracking-wide mb-4">Financial Overview</h3>
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-[10px] opacity-70 mb-1">Net Profit</p>
-                            <p class="text-3xl font-black">¥<span id="profitDisplay">25,200</span></p>
-                            <p class="text-[10px] opacity-70 mt-1">Tap to Simulate</p>
-                        </div>
-                        <div class="relative w-20 h-20"><canvas id="financePieChart"></canvas></div>
-                    </div>
-                </div>
-
-                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wide mb-3 pl-1">Income vs Expense</h3>
-                <div class="card">
-                    <canvas id="financeBarChart" height="150"></canvas>
-                </div>
-
-                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wide mb-3 pl-1">Market Trend (Rice)</h3>
-                <div class="card clickable" onclick="showModal('Market Analysis', '大米价格在过去 30 天内呈现稳定上涨趋势，建议持有观望。')">
-                    <canvas id="marketLineChart" height="150"></canvas>
-                </div>
-
-                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wide mb-3 pl-1">Recent Transactions</h3>
-                <div class="card !p-0 overflow-hidden">
-                    <div class="clickable p-4 border-b border-slate-50 flex items-center" onclick="showTransaction('Fertilizer Purchase', '-¥1,200', '2023-10-24 10:00:00', 'Payment Success')">
-                        <div class="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-500 mr-3"><i class="ri-shopping-cart-line"></i></div>
-                        <div class="flex-1"><p class="text-xs font-bold text-slate-700">Fertilizer</p><p class="text-[9px] text-slate-400">10:00 AM</p></div><span class="text-xs font-bold text-slate-800">-¥1,200</span>
-                    </div>
-                    <div class="clickable p-4 flex items-center" onclick="showTransaction('Crop Sales', '+¥5,400', '2023-10-23 16:30:00', 'Payment Received')">
-                        <div class="w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-500 mr-3"><i class="ri-coins-line"></i></div>
-                        <div class="flex-1"><p class="text-xs font-bold text-slate-700">Crop Sales</p><p class="text-[9px] text-slate-400">Yesterday</p></div><span class="text-xs font-bold text-emerald-600">+¥5,400</span>
-                    </div>
+                <div class="card bg-blue-600 text-white">
+                    <h3 class="text-xs font-bold opacity-70 mb-4 uppercase">Profit Overview</h3>
+                    <p class="text-3xl font-black">¥<span id="profitDisplay">25,200</span></p>
                 </div>
             </div>
 
             <div id="settings" class="page">
                 <div class="card flex items-center space-x-4">
-                    <img src="https://i.pravatar.cc/150?u=hexi" class="w-12 h-12 rounded-full border-2 border-slate-100">
-                    <div><h3 class="font-bold text-slate-800 text-sm">Li Hua (李华)</h3><p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Farmer ID: #4128</p></div>
+                    <img src="https://i.pravatar.cc/150?u=hexi" class="w-14 h-14 rounded-full border-2 border-white shadow-sm">
+                    <div class="flex-1">
+                        <h3 class="font-bold text-slate-800 text-base">李华 (Li Hua)</h3>
+                        <p class="text-[10px] text-slate-400 font-bold">高级农场管理员 ID: #4128</p>
+                    </div>
+                    <div class="bg-emerald-100 text-emerald-600 p-2 rounded-lg"><i class="ri-qr-code-line text-lg"></i></div>
                 </div>
+
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 pl-1">Farm & Devices</h3>
                 <div class="card !p-0 overflow-hidden">
-                    <div class="clickable p-4 border-b border-slate-50 flex items-center" onclick="showToast('正在生成 PDF...')"><i class="ri-file-chart-line text-slate-400 mr-3"></i><span class="text-xs font-bold text-slate-600">Export Report</span></div>
-                    <div class="clickable p-4 flex items-center text-red-500" onclick="showToast('已退出登录')"><i class="ri-logout-box-line mr-3"></i><span class="text-xs font-bold">Log Out</span></div>
+                    <div class="p-4 border-b border-slate-50 flex justify-between items-center clickable" onclick="manageFields()">
+                        <div class="flex items-center">
+                            <i class="ri-map-pin-2-line text-slate-400 mr-3"></i>
+                            <span class="text-xs font-bold text-slate-700">当前管理地块</span>
+                        </div>
+                        <span class="text-[10px] bg-slate-100 text-slate-500 px-2 py-1 rounded-md font-bold" id="currentFieldLabel">Area A</span>
+                    </div>
+                    <div class="p-4 flex flex-col space-y-3">
+                        <div class="flex justify-between items-center text-[10px] font-bold">
+                            <span class="text-slate-400 uppercase">Device Connectivity</span>
+                            <span class="text-emerald-500" onclick="syncData()"><i class="ri-refresh-line mr-1"></i>Sync Now</span>
+                        </div>
+                        <div class="flex space-x-2">
+                            <div class="flex-1 bg-slate-50 p-2 rounded-lg text-center">
+                                <i class="ri-wifi-line text-emerald-500 block mb-1"></i>
+                                <p class="text-[9px] text-slate-400">Gateway</p>
+                            </div>
+                            <div class="flex-1 bg-slate-50 p-2 rounded-lg text-center">
+                                <i class="ri-plane-line text-emerald-500 block mb-1"></i>
+                                <p class="text-[9px] text-slate-400">Drone</p>
+                            </div>
+                            <div class="flex-1 bg-slate-50 p-2 rounded-lg text-center">
+                                <i class="ri-sensor-line text-red-400 block mb-1 animate-pulse"></i>
+                                <p class="text-[9px] text-slate-400">Sensor B</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 pl-1">Preferences</h3>
+                <div class="card !p-0 overflow-hidden">
+                    <div class="p-4 border-b border-slate-50 flex justify-between items-center">
+                        <div class="flex items-center">
+                            <i class="ri-notification-badge-line text-slate-400 mr-3"></i>
+                            <span class="text-xs font-bold text-slate-700">AI 自动病虫害预警</span>
+                        </div>
+                        <div class="switch on" onclick="this.classList.toggle('on'); showToast('预警设置已更新')"><div class="switch-dot"></div></div>
+                    </div>
+                    <div class="p-4 flex justify-between items-center">
+                        <div class="flex items-center">
+                            <i class="ri-mail-send-line text-slate-400 mr-3"></i>
+                            <span class="text-xs font-bold text-slate-700">每日农事简报推送</span>
+                        </div>
+                        <div class="switch" onclick="this.classList.toggle('on'); showToast('推送偏好已更改')"><div class="switch-dot"></div></div>
+                    </div>
+                </div>
+
+                <div class="card !p-0 overflow-hidden">
+                    <div class="p-4 border-b border-slate-50 flex items-center clickable" onclick="showToast('正在清理缓存...')">
+                        <i class="ri-delete-bin-line text-slate-400 mr-3"></i>
+                        <span class="text-xs font-bold text-slate-600">清除本地数据缓存</span>
+                    </div>
+                    <div class="p-4 flex items-center text-red-500 clickable" onclick="confirmLogout()">
+                        <i class="ri-logout-box-line mr-3"></i>
+                        <span class="text-xs font-bold">退出系统登录</span>
+                    </div>
                 </div>
             </div>
 
         </main>
 
         <nav class="fixed bottom-0 w-full max-w-[414px] bg-white border-t border-slate-100 flex justify-around py-3 px-2 z-40 pb-6">
-            <div onclick="showPage('home', this)" class="nav-item active flex flex-col items-center cursor-pointer w-16 transition active:scale-90"><i class="ri-home-5-line text-2xl mb-0.5 text-slate-300"></i><span class="text-[9px] font-bold text-slate-400">Home</span></div>
-            <div onclick="showPage('prediction', this)" class="nav-item flex flex-col items-center cursor-pointer w-16 transition active:scale-90"><i class="ri-plant-line text-2xl mb-0.5 text-slate-300"></i><span class="text-[9px] font-bold text-slate-400">Metrics</span></div>
-            <div onclick="showPage('finance', this)" class="nav-item flex flex-col items-center cursor-pointer w-16 transition active:scale-90"><i class="ri-wallet-3-line text-2xl mb-0.5 text-slate-300"></i><span class="text-[9px] font-bold text-slate-400">Harvest</span></div>
-            <div onclick="showPage('settings', this)" class="nav-item flex flex-col items-center cursor-pointer w-16 transition active:scale-90"><i class="ri-user-3-line text-2xl mb-0.5 text-slate-300"></i><span class="text-[9px] font-bold text-slate-400">Settings</span></div>
+            <div onclick="showPage('home', this)" class="nav-item active flex flex-col items-center cursor-pointer w-16"><i class="ri-home-5-line text-2xl mb-0.5 text-slate-300"></i><span class="text-[9px] font-bold text-slate-400">Home</span></div>
+            <div onclick="showPage('prediction', this)" class="nav-item flex flex-col items-center cursor-pointer w-16"><i class="ri-bar-chart-2-line text-2xl mb-0.5 text-slate-300"></i><span class="text-[9px] font-bold text-slate-400">Metrics</span></div>
+            <div onclick="showPage('finance', this)" class="nav-item flex flex-col items-center cursor-pointer w-16"><i class="ri-wallet-3-line text-2xl mb-0.5 text-slate-300"></i><span class="text-[9px] font-bold text-slate-400">Harvest</span></div>
+            <div onclick="showPage('settings', this)" class="nav-item flex flex-col items-center cursor-pointer w-16"><i class="ri-user-3-line text-2xl mb-0.5 text-slate-300"></i><span class="text-[9px] font-bold text-slate-400">Settings</span></div>
         </nav>
     </div>
 
     <script>
-        let pieChart, barChart, lineChart, growthChart;
-
-        // --- 页面切换 ---
+        // 1. 基础导航
         function showPage(pageId, element) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById(pageId).classList.add('active');
@@ -221,120 +214,99 @@
             }
         }
 
-        // --- 交互反馈 ---
-        function showToast(msg) {
+        // 2. Settings 专题交互
+        function manageFields() {
+            const bodyHTML = `
+                <div class="space-y-2">
+                    <div onclick="switchField('Area A')" class="p-3 bg-slate-50 rounded-xl flex justify-between items-center cursor-pointer hover:bg-emerald-50">
+                        <span class="text-xs font-bold">1号地块 (Area A)</span>
+                        <i class="ri-checkbox-circle-fill text-emerald-500"></i>
+                    </div>
+                    <div onclick="switchField('Area B')" class="p-3 bg-slate-50 rounded-xl flex justify-between items-center cursor-pointer hover:bg-emerald-50">
+                        <span class="text-xs font-bold">2号地块 (Area B)</span>
+                        <i class="ri-checkbox-blank-circle-line text-slate-300"></i>
+                    </div>
+                    <div onclick="switchField('Zone C')" class="p-3 bg-slate-50 rounded-xl flex justify-between items-center cursor-pointer hover:bg-emerald-50">
+                        <span class="text-xs font-bold">3号测试区 (Zone C)</span>
+                        <i class="ri-checkbox-blank-circle-line text-slate-300"></i>
+                    </div>
+                </div>
+            `;
+            showModal('地块切换', bodyHTML);
+        }
+
+        function switchField(fieldName) {
+            document.getElementById('currentFieldLabel').innerText = fieldName;
+            document.getElementById('headerField').innerText = `Control Center • ${fieldName}`;
+            closeModal();
+            showToast(`已切换至 ${fieldName}`);
+        }
+
+        function syncData() {
             const toast = document.getElementById('toast');
-            document.getElementById('toastMsg').innerText = msg;
+            const icon = document.getElementById('toastIcon');
+            const msg = document.getElementById('toastMsg');
+            
+            icon.className = "ri-refresh-line animate-spin mr-2 text-green-400";
+            msg.innerText = "正在从网关抓取数据...";
             toast.style.opacity = '1';
-            setTimeout(() => toast.style.opacity = '0', 2000);
+            
+            setTimeout(() => {
+                icon.className = "ri-checkbox-circle-line mr-2 text-green-400";
+                msg.innerText = "同步完成！数据已更新";
+                setTimeout(() => { toast.style.opacity = '0'; }, 1500);
+            }, 2500);
+        }
+
+        function confirmLogout() {
+            showModal('退出系统', '确定要退出当前的管理员账号吗？未保存的草稿可能会丢失。');
+            document.getElementById('modalConfirmBtn').onclick = () => { location.reload(); };
+        }
+
+        // 3. 通用 UI 逻辑
+        function showModal(title, contentHTML) {
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('modalBody').innerHTML = contentHTML;
+            document.querySelector('.modal-overlay').classList.add('open');
+        }
+
+        function closeModal(e) { 
+            if(!e || e.target.classList.contains('modal-overlay') || e.target.tagName === 'BUTTON') 
+                document.querySelector('.modal-overlay').classList.remove('open'); 
+        }
+
+        function showToast(msgText) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastIcon').className = "ri-checkbox-circle-line mr-2 text-green-400";
+            document.getElementById('toastMsg').innerText = msgText;
+            toast.style.opacity = '1';
+            setTimeout(() => { toast.style.opacity = '0'; }, 2000);
         }
 
         function toggleSim() { document.getElementById('simulator').classList.toggle('open'); }
-        function showModal(title, content) {
-            document.getElementById('modalTitle').innerText = title;
-            document.getElementById('modalBody').innerText = content;
-            document.querySelector('.modal-overlay').classList.add('open');
-        }
-        function closeModal(e) { 
-            if(!e || e.target.classList.contains('modal-overlay') || e.target.tagName === 'BUTTON') 
-            document.querySelector('.modal-overlay').classList.remove('open'); 
-        }
 
-        function showNotifications() {
-            showModal('Notifications', '1. 明日有雨，请注意排水。\n2. 系统将于今晚进行维护升级。');
-        }
-
-        function showTransaction(title, amount, time, status) {
-            showModal('Transaction Details', `Type: ${title}\nAmount: ${amount}\nTime: ${time}\nStatus: ${status}`);
-        }
-
-        // --- 模拟器核心逻辑 ---
+        // --- 模拟器 & 初始化逻辑 ---
         function updateSimulation() {
-            // 获取值
-            const revenue = parseInt(document.querySelector('input[oninput="updateSimulation()"]').value) || 45200; // 获取第一个滑块
-            const cost = parseInt(document.querySelectorAll('input[type=range]')[1].value) || 20000; // 获取第二个滑块
-
-            // 更新显示文本
-            document.getElementById('val-rev').innerText = revenue;
+            const rev = parseInt(document.querySelectorAll('input[type=range]')[0].value);
+            const cost = parseInt(document.querySelectorAll('input[type=range]')[1].value);
+            document.getElementById('val-rev').innerText = rev;
             document.getElementById('val-cost').innerText = cost;
-            
-            // 计算利润
-            let profit = revenue - cost;
-            if (profit < 0) profit = 0;
-            document.getElementById('profitDisplay').innerText = profit.toLocaleString();
-
-            // 1. 更新 Pie Chart (Profit vs Cost)
-            pieChart.data.datasets[0].data = [profit, cost];
-            pieChart.update();
-
-            // 2. 更新 Bar Chart (动态波动)
-            // 简单模拟：让每个月的柱子在基准值附近波动
-            const baseRev = revenue / 1200; 
-            const baseCost = cost / 1200;
-            barChart.data.datasets[0].data = [baseRev*1.1, baseRev*0.9, baseRev*1.2, baseRev, baseRev*1.3, baseRev*1.1]; // Income
-            barChart.data.datasets[1].data = [baseCost, baseCost*1.1, baseCost*0.9, baseCost, baseCost*1.05, baseCost]; // Expense
-            barChart.update();
+            document.getElementById('profitDisplay').innerText = (rev - cost).toLocaleString();
         }
 
-        // --- 初始化图表 ---
-        // 1. Growth Chart
-        const ctxGrowth = document.getElementById('growthChart').getContext('2d');
-        growthChart = new Chart(ctxGrowth, {
-            type: 'line',
-            data: { labels: ['J','F','M','A','M','J','J'], datasets: [{ data: [300,450,400,600,550,750,800], borderColor: '#10b981', backgroundColor: 'rgba(16, 185, 129, 0.1)', borderWidth: 2, tension: 0.4, fill: true, pointRadius: 0 }] },
-            options: { plugins: { legend: { display: false } }, scales: { y: { display: false }, x: { display: false } } }
-        });
-
-        // 2. Finance Pie Chart
-        const ctxPie = document.getElementById('financePieChart').getContext('2d');
-        pieChart = new Chart(ctxPie, {
-            type: 'doughnut',
-            data: { labels: ['Profit', 'Cost'], datasets: [{ data: [25200, 20000], backgroundColor: ['#fbbf24', '#ffffff'], borderWidth: 0 }] },
-            options: { cutout: '75%', plugins: { legend: { display: false } }, responsive: true, maintainAspectRatio: false }
-        });
-
-        // 3. Finance Bar Chart (New)
-        const ctxBar = document.getElementById('financeBarChart').getContext('2d');
-        barChart = new Chart(ctxBar, {
-            type: 'bar',
-            data: {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-                datasets: [
-                    { label: 'Income', data: [40, 35, 50, 45, 60, 55], backgroundColor: '#10b981', borderRadius: 4 },
-                    { label: 'Expense', data: [20, 25, 20, 22, 25, 20], backgroundColor: '#ef4444', borderRadius: 4 }
-                ]
-            },
-            options: {
-                plugins: { legend: { display: true, position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } } },
-                scales: { y: { display: false }, x: { grid: { display: false } } }
+        function handleAIUpload(input) {
+            if (input.files && input.files[0]) {
+                showToast('正在上传并分析图片...');
+                // 模拟处理动画
+                document.getElementById('uploadZone').classList.add('hidden');
+                document.getElementById('resultZone').classList.remove('hidden');
+                document.getElementById('previewImg').src = URL.createObjectURL(input.files[0]);
+                document.getElementById('aiProgressBar').style.width = "100%";
+                setTimeout(() => {
+                    document.getElementById('aiStatusText').innerText = "✅ 叶片健康 (Healthy)";
+                }, 2000);
             }
-        });
-
-        // 4. Market Line Chart (New)
-        const ctxLine = document.getElementById('marketLineChart').getContext('2d');
-        lineChart = new Chart(ctxLine, {
-            type: 'line',
-            data: {
-                labels: ['W1', 'W2', 'W3', 'W4', 'W5'],
-                datasets: [{
-                    label: 'Price',
-                    data: [3.2, 3.25, 3.22, 3.30, 3.35],
-                    borderColor: '#3b82f6',
-                    borderWidth: 2,
-                    tension: 0.4,
-                    pointRadius: 3,
-                    pointBackgroundColor: 'white'
-                }]
-            },
-            options: {
-                plugins: { legend: { display: false } },
-                scales: { y: { display: false }, x: { grid: { display: false } } }
-            }
-        });
-        
-        // 初始化一次模拟数据
-        updateSimulation();
-
+        }
     </script>
 </body>
 </html>
