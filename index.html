@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>禾析智能 - 数据驱动农业未来</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+        }
+        .hero-gradient {
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+        }
+    </style>
+</head>
+<body class="hero-gradient min-h-screen font-sans">
+
+    <nav class="flex justify-between items-center p-6 max-w-7xl mx-auto">
+        <div class="flex items-center space-x-2">
+            <div class="w-10 h-10 bg-green-600 rounded-lg flex items-center justify-center">
+                <span class="text-white font-bold text-xl">禾</span>
+            </div>
+            <span class="text-2xl font-bold text-green-800">禾析智能</span>
+        </div>
+        <div class="hidden md:flex space-x-8 text-green-700 font-medium">
+            <a href="#" class="hover:text-green-500">功能介绍</a>
+            <a href="#" class="hover:text-green-500">数据来源</a>
+            <a href="#" class="hover:text-green-500">关于我们</a>
+        </div>
+        <button class="bg-green-600 text-white px-6 py-2 rounded-full font-bold hover:bg-green-700 transition">
+            联系专家
+        </button>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-6 pt-16 pb-24 flex flex-col md:flex-row items-center">
+        <div class="md:w-1/2 text-left space-y-8">
+            <h1 class="text-5xl md:text-7xl font-extrabold text-slate-800 leading-tight">
+                让每一寸土地 <br>
+                <span class="text-green-600">都学会思考</span>
+            </h1>
+            <p class="text-lg text-slate-600 max-w-lg">
+                禾析智能通过卫星遥感、土壤传感器与 AI 预测模型，为农户提供精准的增产建议与财务分析。
+            </p>
+            
+            <div class="flex space-x-4">
+                <a href="YOUR_FLUTTER_WEB_URL_HERE" target="_blank" class="bg-slate-900 text-white px-8 py-4 rounded-2xl font-bold text-lg hover:scale-105 transition transform flex items-center shadow-xl">
+                    <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                    立即打开网页版 APP
+                </a>
+            </div>
+            
+            <div class="flex items-center space-x-4 pt-4">
+                <div class="flex -space-x-2">
+                    <img class="w-10 h-10 rounded-full border-2 border-white" src="https://i.pravatar.cc/100?u=1">
+                    <img class="w-10 h-10 rounded-full border-2 border-white" src="https://i.pravatar.cc/100?u=2">
+                    <img class="w-10 h-10 rounded-full border-2 border-white" src="https://i.pravatar.cc/100?u=3">
+                </div>
+                <p class="text-sm text-slate-500 font-medium">超过 1,200+ 农场正在使用</p>
+            </div>
+        </div>
+
+        <div class="md:w-1/2 mt-16 md:mt-0 flex justify-center relative">
+            <div class="w-64 h-[500px] bg-slate-800 rounded-[3rem] border-[8px] border-slate-900 shadow-2xl overflow-hidden relative">
+                <div class="bg-green-50 h-full p-4">
+                    <div class="w-full h-4 bg-slate-200 rounded-full mb-6"></div>
+                    <div class="w-full h-32 bg-green-200 rounded-2xl mb-4"></div>
+                    <div class="w-24 h-24 border-8 border-green-500 rounded-full mx-auto mb-4"></div>
+                    <div class="space-y-2">
+                        <div class="w-full h-4 bg-white rounded"></div>
+                        <div class="w-2/3 h-4 bg-white rounded"></div>
+                    </div>
+                </div>
+                <div class="absolute inset-0 bg-gradient-to-t from-green-600/20 to-transparent pointer-events-none"></div>
+            </div>
+            <div class="absolute -z-10 w-72 h-72 bg-green-300 blur-[100px] opacity-50 top-10"></div>
+        </div>
+    </main>
+
+    <section class="bg-white py-20">
+        <div class="max-w-7xl mx-auto px-6 grid md:grid-cols-3 gap-12">
+            <div class="p-8 rounded-3xl bg-slate-50 hover:shadow-lg transition">
+                <div class="text-green-600 mb-4 font-bold text-xl">01. 智能预警</div>
+                <p class="text-slate-600">毫秒级分析气象变化，在虫害爆发前 72 小时发出预警通知。</p>
+            </div>
+            <div class="p-8 rounded-3xl bg-slate-50 hover:shadow-lg transition">
+                <div class="text-green-600 mb-4 font-bold text-xl">02. 产量预测</div>
+                <p class="text-slate-600">结合历史数据与 NDVI 指数，精准预测收割产量，误差率低于 5%。</p>
+            </div>
+            <div class="p-8 rounded-3xl bg-slate-50 hover:shadow-lg transition">
+                <div class="text-green-600 mb-4 font-bold text-xl">03. 金融决策</div>
+                <p class="text-slate-600">根据市场行情自动计算最佳售卖时机，最大化您的种植收益。</p>
+            </div>
+        </div>
+    </section>
+
+</body>
+</html>
