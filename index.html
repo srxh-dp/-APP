@@ -3,40 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>禾析智能 - V10.0 深度管理版</title>
+    <title>禾析智能 - 旗舰版控制台</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #f0fdf4; display: flex; justify-content: center; min-height: 100vh; margin: 0; }
-        .app-container { width: 100%; max-width: 414px; background: #f1f5f9; position: relative; overflow: hidden; min-height: 100vh; box-shadow: 0 0 60px rgba(0,0,0,0.15); }
-        .page { display: none; height: 100vh; overflow-y: auto; padding: 20px; padding-bottom: 120px; scroll-behavior: smooth; }
-        .page.active { display: block; }
         
-        .card { background: white; border-radius: 20px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); margin-bottom: 16px; padding: 20px; border: 1px solid rgba(255,255,255,0.7); transition: transform 0.1s; position: relative; }
+        /* 手机容器核心样式 */
+        .app-container { 
+            width: 100%; max-width: 414px; background: #f1f5f9; position: relative; 
+            overflow: hidden; min-height: 100vh; box-shadow: 0 0 60px rgba(0,0,0,0.15); 
+        }
+        
+        /* 页面切换动画 */
+        .page { display: none; height: 100vh; overflow-y: auto; padding: 16px; padding-bottom: 120px; scroll-behavior: smooth; }
+        .page.active { display: block; animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* 高级卡片样式 */
+        .card { 
+            background: white; border-radius: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); 
+            margin-bottom: 14px; padding: 18px; border: 1px solid rgba(255,255,255,0.7); 
+            transition: transform 0.1s; position: relative; 
+        }
         .card:active { transform: scale(0.99); }
-        .clickable { cursor: pointer; transition: background-color 0.2s; }
-        .clickable:active { background-color: #f8fafc; }
-        
-        /* 状态开关样式 */
-        .switch { width: 36px; height: 20px; background: #cbd5e1; border-radius: 20px; position: relative; transition: background 0.3s; cursor: pointer; }
+        .card-dark { background: linear-gradient(135deg, #1e293b 0%, #334155 100%); color: white; }
+        .card-green { background: linear-gradient(135deg, #059669 0%, #10b981 100%); color: white; }
+        .card-blue { background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%); color: white; }
+
+        /* 底部导航岛 */
+        .nav-island {
+            position: fixed; bottom: 20px; left: 20px; right: 20px; max-width: 374px; margin: 0 auto;
+            background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(15px);
+            border-radius: 30px; padding: 12px 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            display: flex; justify-content: space-around; z-index: 100;
+        }
+        .nav-item { display: flex; flex-direction: column; align-items: center; color: #94a3b8; cursor: pointer; }
+        .nav-item.active { color: #059669; }
+
+        /* 开关组件 */
+        .switch { width: 36px; height: 20px; background: #cbd5e1; border-radius: 20px; position: relative; transition: 0.3s; cursor: pointer; }
         .switch.on { background: #10b981; }
-        .switch-dot { width: 16px; height: 16px; background: white; border-radius: 50%; position: absolute; top: 2px; left: 2px; transition: left 0.3s; }
+        .switch-dot { width: 16px; height: 16px; background: white; border-radius: 50%; position: absolute; top: 2px; left: 2px; transition: 0.3s; }
         .switch.on .switch-dot { left: 18px; }
 
-        /* 弹窗 */
-        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 60; display: none; align-items: center; justify-content: center; backdrop-filter: blur(4px); opacity: 0; transition: opacity 0.3s; }
-        .modal-overlay.open { display: flex; opacity: 1; }
-        .modal-content { background: white; width: 85%; max-width: 320px; border-radius: 28px; padding: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.25); }
-
-        /* 隐藏滚动条 */
-        ::-webkit-scrollbar { display: none; }
-        .nav-item.active i, .nav-item.active span { color: #059669; font-weight: 800; }
-        
-        /* 模拟器 */
-        #simulator { transform: translateY(110%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        /* 弹窗与模拟器 */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 150; display: none; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
+        .modal-overlay.open { display: flex; }
+        #simulator { transform: translateY(110%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 200; }
         #simulator.open { transform: translateY(0); }
+
+        ::-webkit-scrollbar { display: none; }
+        .task-done { text-decoration: line-through; opacity: 0.5; }
     </style>
 </head>
 <body>
@@ -44,47 +64,50 @@
     <div class="app-container">
         
         <div id="modal" class="modal-overlay" onclick="closeModal(event)">
-            <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-content bg-white w-[85%] max-w-[320px] rounded-[28px] p-6 shadow-2xl" onclick="event.stopPropagation()">
                 <div class="flex justify-between items-center mb-4">
                     <h3 id="modalTitle" class="text-lg font-bold text-slate-800">标题</h3>
-                    <button onclick="closeModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200">✕</button>
+                    <button onclick="closeModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500">✕</button>
                 </div>
-                <div id="modalBody" class="text-sm text-slate-600 leading-relaxed mb-6">内容加载中...</div>
-                <div id="modalActions" class="flex space-x-3">
-                    <button onclick="closeModal()" class="flex-1 bg-slate-100 text-slate-500 py-3 rounded-xl font-bold text-xs">取消</button>
-                    <button id="modalConfirmBtn" onclick="closeModal()" class="flex-1 bg-slate-900 text-white py-3 rounded-xl font-bold text-xs">确定</button>
+                <div id="modalBody" class="text-sm text-slate-600 leading-relaxed mb-6">内容...</div>
+                <button onclick="closeModal()" class="w-full bg-slate-900 text-white py-3 rounded-xl font-bold text-xs">确定</button>
+            </div>
+        </div>
+
+        <div id="toast" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-slate-900/90 text-white px-6 py-3 rounded-full text-sm font-bold opacity-0 pointer-events-none transition-opacity z-[300] shadow-xl flex items-center">
+            <i class="ri-checkbox-circle-line mr-2 text-green-400"></i> <span id="toastMsg">Success</span>
+        </div>
+
+        <div id="simulator" class="fixed bottom-0 left-0 right-0 max-w-[414px] mx-auto bg-slate-900 text-white p-6 rounded-t-[32px] border-t border-slate-700">
+            <div class="flex justify-between items-center mb-6">
+                <h4 class="font-bold text-green-400 text-sm italic">DATA SIMULATOR</h4>
+                <button onclick="toggleSim()" class="bg-slate-800 px-3 py-1 rounded-full text-xs">Close</button>
+            </div>
+            <div class="space-y-5">
+                <div>
+                    <div class="flex justify-between text-xs text-slate-400 mb-2"><span>收入模拟 (Rev)</span><span class="text-white font-mono">¥<span id="sim-rev-val">45200</span></span></div>
+                    <input type="range" min="30000" max="90000" step="1000" value="45200" class="w-full h-1.5 bg-slate-700 rounded-lg appearance-none accent-green-500" oninput="runSim()">
+                </div>
+                <div>
+                    <div class="flex justify-between text-xs text-slate-400 mb-2"><span>成本模拟 (Cost)</span><span class="text-white font-mono">¥<span id="sim-cost-val">20000</span></span></div>
+                    <input type="range" min="10000" max="40000" step="1000" value="20000" class="w-full h-1.5 bg-slate-700 rounded-lg appearance-none accent-red-500" oninput="runSim()">
                 </div>
             </div>
         </div>
 
-        <div id="toast" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-slate-900/90 text-white px-6 py-3 rounded-full text-sm font-bold opacity-0 pointer-events-none transition-opacity z-[70] shadow-xl flex items-center">
-            <i class="ri-refresh-line animate-spin mr-2 text-green-400" id="toastIcon"></i> <span id="toastMsg">正在同步</span>
-        </div>
-
-        <div id="simulator" class="absolute bottom-4 left-4 right-4 bg-slate-800/95 backdrop-blur-md text-white z-50 p-5 rounded-3xl shadow-2xl border border-slate-600">
-            <div class="flex justify-between items-center mb-4">
-                <h4 class="font-bold text-green-400 text-sm flex items-center"><i class="ri-equalizer-line mr-2"></i> 模拟控制台</h4>
-                <button onclick="toggleSim()" class="text-xs bg-slate-700 px-3 py-1 rounded-full">收起</button>
-            </div>
-            <div class="space-y-4">
-                <div>
-                    <div class="flex justify-between text-xs text-slate-400 mb-1"><span>总收入</span><span class="text-emerald-400 font-mono font-bold">¥<span id="val-rev">45200</span></span></div>
-                    <input type="range" min="30000" max="80000" step="1000" value="45200" class="w-full h-2 bg-slate-600 rounded-lg appearance-none cursor-pointer accent-emerald-500" oninput="updateSimulation()">
-                </div>
-                <div>
-                    <div class="flex justify-between text-xs text-slate-400 mb-1"><span>成本</span><span class="text-red-400 font-mono font-bold">¥<span id="val-cost">20000</span></span></div>
-                    <input type="range" min="10000" max="40000" step="1000" value="20000" class="w-full h-2 bg-slate-600 rounded-lg appearance-none cursor-pointer accent-red-500" oninput="updateSimulation()">
-                </div>
-            </div>
-        </div>
-        
-        <header class="pt-12 px-6 pb-4 flex justify-between items-center sticky top-0 z-20 backdrop-blur-sm">
+        <header class="pt-10 px-6 pb-4 flex justify-between items-center bg-transparent sticky top-0 z-50 backdrop-blur-sm">
             <div>
                 <h1 class="text-xl font-black text-slate-800 tracking-tight">HE XI <span class="text-emerald-600">AI</span></h1>
-                <p class="text-[9px] text-slate-400 font-bold uppercase mt-0.5" id="headerField">Control Center • Area A</p>
+                <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-0.5" id="fieldIndicator">Control Center • Area A</p>
             </div>
-            <div class="flex space-x-3">
-                <button onclick="toggleSim()" class="w-10 h-10 bg-white rounded-full shadow-sm flex items-center justify-center active:scale-90 transition"><i class="ri-equalizer-line text-lg text-slate-600"></i></button>
+            <div class="flex space-x-2">
+                <button onclick="showModal('通知', '明日预计有雷阵雨，请确保排水泵处于自动开启状态。')" class="w-9 h-9 bg-white rounded-full shadow-sm flex items-center justify-center relative">
+                    <i class="ri-notification-3-line text-slate-600"></i>
+                    <span class="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border border-white"></span>
+                </button>
+                <button onclick="toggleSim()" class="w-9 h-9 bg-slate-800 text-white rounded-full shadow-sm flex items-center justify-center">
+                    <i class="ri-equalizer-line"></i>
+                </button>
             </div>
         </header>
 
@@ -92,27 +115,111 @@
             
             <div id="home" class="page active">
                 <div class="card card-dark">
-                    <p class="text-[10px] text-emerald-400 font-bold uppercase mb-1">AI 视觉诊断</p>
-                    <h2 class="text-xl font-black text-white">Crop Health Check</h2>
-                    <div id="uploadZone" onclick="document.getElementById('imgInput').click()" class="bg-white/5 border-2 border-dashed border-white/20 rounded-xl h-24 flex flex-col items-center justify-center cursor-pointer mt-4">
-                        <i class="ri-image-add-line text-2xl text-emerald-400 mb-1"></i>
-                        <p class="text-xs text-slate-300">点击上传照片</p>
+                    <div class="flex justify-between mb-4">
+                        <div>
+                            <p class="text-[10px] text-emerald-400 font-bold uppercase">AI Vision</p>
+                            <h2 class="text-xl font-black">Crop Diagnosis</h2>
+                        </div>
+                        <i class="ri-camera-lens-line text-2xl text-white/50"></i>
                     </div>
-                    <input type="file" id="imgInput" accept="image/*" class="hidden" onchange="handleAIUpload(this)">
+                    <div id="uploadZone" onclick="document.getElementById('aiInput').click()" class="bg-white/5 border-2 border-dashed border-white/20 rounded-2xl py-6 flex flex-col items-center justify-center cursor-pointer active:scale-95 transition">
+                        <i class="ri-image-add-line text-3xl text-emerald-400 mb-2"></i>
+                        <p class="text-xs text-slate-400 font-bold">上传叶片照片进行分析</p>
+                    </div>
+                    <div id="aiResult" class="hidden bg-white/10 p-4 rounded-2xl flex items-center space-x-4">
+                        <img id="aiPreview" class="w-16 h-16 object-cover rounded-xl">
+                        <div>
+                            <p id="aiStatus" class="text-sm font-black text-emerald-400 animate-pulse">正在解析特征...</p>
+                            <button onclick="resetAI()" class="text-[10px] text-slate-400 mt-2 underline">重新拍摄</button>
+                        </div>
+                    </div>
+                    <input type="file" id="aiInput" accept="image/*" class="hidden" onchange="processAI(this)">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3 mb-4">
+                    <div class="card !mb-0 text-center">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase mb-2">Soil Moisture</p>
+                        <div class="relative w-20 h-20 mx-auto">
+                            <svg class="w-full h-full -rotate-90" viewBox="0 0 36 36">
+                                <circle cx="18" cy="18" r="16" fill="none" stroke="#f1f5f9" stroke-width="3"></circle>
+                                <circle id="moistProgress" cx="18" cy="18" r="16" fill="none" stroke="#10b981" stroke-width="3" stroke-dasharray="75, 100"></circle>
+                            </svg>
+                            <div class="absolute inset-0 flex items-center justify-center font-black text-lg">75%</div>
+                        </div>
+                    </div>
+                    <div class="space-y-3">
+                        <div class="card !mb-0 p-3 flex justify-between items-center">
+                            <div><p class="text-[9px] text-slate-400">Temp</p><p class="text-sm font-bold">24°C</p></div>
+                            <i class="ri-temp-hot-line text-orange-400"></i>
+                        </div>
+                        <div class="card !mb-0 p-3 flex justify-between items-center">
+                            <div><p class="text-[9px] text-slate-400">PH Level</p><p class="text-sm font-bold">6.8</p></div>
+                            <i class="ri-drop-line text-blue-400"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Farmer Tasks</h3>
+                <div class="card !p-0 overflow-hidden">
+                    <div onclick="toggleTask(this)" class="p-4 border-b border-slate-50 flex items-center clickable">
+                        <i class="ri-checkbox-circle-line text-slate-300 mr-3 text-xl"></i>
+                        <span class="text-xs font-bold text-slate-600">检查 A 区排水泵</span>
+                    </div>
+                    <div onclick="toggleTask(this)" class="p-4 border-b border-slate-50 flex items-center clickable">
+                        <i class="ri-checkbox-circle-line text-slate-300 mr-3 text-xl"></i>
+                        <span class="text-xs font-bold text-slate-600">施加二次叶面肥</span>
+                    </div>
+                    <div class="p-3 text-center text-[10px] text-emerald-600 font-bold bg-slate-50">+ ADD NEW TASK</div>
                 </div>
             </div>
 
-            <div id="prediction" class="page">
-                <div class="card bg-emerald-600 text-white">
-                    <h2 class="text-4xl font-black">+15.4%</h2>
-                    <p class="text-xs opacity-80">预期收益提升</p>
+            <div id="metrics" class="page">
+                <div class="card card-green">
+                    <p class="text-[10px] font-bold uppercase opacity-80">Yield Prediction</p>
+                    <h2 class="text-4xl font-black mt-1">+15.4%</h2>
+                    <p class="text-xs mt-2 opacity-80">高于区域往年平均产量</p>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-3 mb-4">
+                    <div class="card !mb-0 clickable" onclick="showModal('LAI 指数', '叶面积指数是衡量作物光合作用能力的关键指标。')">
+                        <p class="text-[9px] text-slate-400 font-bold uppercase mb-2">LAI 指数</p>
+                        <p class="text-xl font-black text-slate-700">3.8</p>
+                        <div class="w-full bg-slate-100 h-1 mt-2 rounded-full overflow-hidden"><div class="bg-emerald-500 w-[75%] h-full"></div></div>
+                    </div>
+                    <div class="card !mb-0 clickable" onclick="showModal('SPAD 指数', '叶绿素相对含量。')">
+                        <p class="text-[9px] text-slate-400 font-bold uppercase mb-2">SPAD 含量</p>
+                        <p class="text-xl font-black text-slate-700">42.5</p>
+                        <div class="w-full bg-slate-100 h-1 mt-2 rounded-full overflow-hidden"><div class="bg-blue-500 w-[85%] h-full"></div></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 class="text-xs font-bold mb-4">生长趋势分析 (NDVI)</h3>
+                    <canvas id="growthChart" height="200"></canvas>
                 </div>
             </div>
 
-            <div id="finance" class="page">
-                <div class="card bg-blue-600 text-white">
-                    <h3 class="text-xs font-bold opacity-70 mb-4 uppercase">Profit Overview</h3>
-                    <p class="text-3xl font-black">¥<span id="profitDisplay">25,200</span></p>
+            <div id="harvest" class="page">
+                <div class="card card-blue clickable" onclick="toggleSim()">
+                    <p class="text-[10px] font-bold uppercase opacity-80">Net Profit Forecast</p>
+                    <h2 class="text-3xl font-black mt-1">¥<span id="display-profit">25,200</span></h2>
+                    <p class="text-[9px] mt-2 bg-white/20 w-fit px-2 py-0.5 rounded">点击下方按钮模拟数据变动</p>
+                </div>
+
+                <div class="card">
+                    <p class="text-xs font-bold text-slate-500 mb-4">收支对比 (Monthly)</p>
+                    <canvas id="barChart" height="150"></canvas>
+                </div>
+
+                <div class="card !p-0 overflow-hidden">
+                    <div class="p-4 border-b border-slate-50 flex justify-between items-center clickable" onclick="showToast('详情加载中...')">
+                        <div class="flex items-center"><i class="ri-arrow-up-circle-fill text-emerald-500 mr-3 text-xl"></i><div><p class="text-xs font-bold text-slate-700">粮食销售收入</p><p class="text-[9px] text-slate-400">昨天 16:30</p></div></div>
+                        <span class="text-sm font-black text-emerald-600">+¥5,400</span>
+                    </div>
+                    <div class="p-4 flex justify-between items-center clickable" onclick="showToast('详情加载中...')">
+                        <div class="flex items-center"><i class="ri-arrow-down-circle-fill text-red-500 mr-3 text-xl"></i><div><p class="text-xs font-bold text-slate-700">化肥采购支出</p><p class="text-[9px] text-slate-400">10月24日</p></div></div>
+                        <span class="text-sm font-black text-slate-700">-¥1,200</span>
+                    </div>
                 </div>
             </div>
 
@@ -120,193 +227,169 @@
                 <div class="card flex items-center space-x-4">
                     <img src="https://i.pravatar.cc/150?u=hexi" class="w-14 h-14 rounded-full border-2 border-white shadow-sm">
                     <div class="flex-1">
-                        <h3 class="font-bold text-slate-800 text-base">李华 (Li Hua)</h3>
-                        <p class="text-[10px] text-slate-400 font-bold">高级农场管理员 ID: #4128</p>
-                    </div>
-                    <div class="bg-emerald-100 text-emerald-600 p-2 rounded-lg"><i class="ri-qr-code-line text-lg"></i></div>
-                </div>
-
-                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 pl-1">Farm & Devices</h3>
-                <div class="card !p-0 overflow-hidden">
-                    <div class="p-4 border-b border-slate-50 flex justify-between items-center clickable" onclick="manageFields()">
-                        <div class="flex items-center">
-                            <i class="ri-map-pin-2-line text-slate-400 mr-3"></i>
-                            <span class="text-xs font-bold text-slate-700">当前管理地块</span>
-                        </div>
-                        <span class="text-[10px] bg-slate-100 text-slate-500 px-2 py-1 rounded-md font-bold" id="currentFieldLabel">Area A</span>
-                    </div>
-                    <div class="p-4 flex flex-col space-y-3">
-                        <div class="flex justify-between items-center text-[10px] font-bold">
-                            <span class="text-slate-400 uppercase">Device Connectivity</span>
-                            <span class="text-emerald-500" onclick="syncData()"><i class="ri-refresh-line mr-1"></i>Sync Now</span>
-                        </div>
-                        <div class="flex space-x-2">
-                            <div class="flex-1 bg-slate-50 p-2 rounded-lg text-center">
-                                <i class="ri-wifi-line text-emerald-500 block mb-1"></i>
-                                <p class="text-[9px] text-slate-400">Gateway</p>
-                            </div>
-                            <div class="flex-1 bg-slate-50 p-2 rounded-lg text-center">
-                                <i class="ri-plane-line text-emerald-500 block mb-1"></i>
-                                <p class="text-[9px] text-slate-400">Drone</p>
-                            </div>
-                            <div class="flex-1 bg-slate-50 p-2 rounded-lg text-center">
-                                <i class="ri-sensor-line text-red-400 block mb-1 animate-pulse"></i>
-                                <p class="text-[9px] text-slate-400">Sensor B</p>
-                            </div>
-                        </div>
+                        <h3 class="font-bold text-slate-800">李华 (Li Hua)</h3>
+                        <p class="text-[9px] text-slate-400 font-bold">高级管理员 ID: #4128</p>
                     </div>
                 </div>
 
-                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 pl-1">Preferences</h3>
+                <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Farm Management</h3>
                 <div class="card !p-0 overflow-hidden">
+                    <div class="p-4 border-b border-slate-50 flex justify-between items-center clickable" onclick="switchField()">
+                        <div class="flex items-center"><i class="ri-map-pin-line text-slate-400 mr-3"></i><span class="text-xs font-bold text-slate-700">当前管理地块</span></div>
+                        <span id="fieldLabel" class="text-[10px] bg-slate-100 px-2 py-1 rounded font-bold">Area A</span>
+                    </div>
                     <div class="p-4 border-b border-slate-50 flex justify-between items-center">
-                        <div class="flex items-center">
-                            <i class="ri-notification-badge-line text-slate-400 mr-3"></i>
-                            <span class="text-xs font-bold text-slate-700">AI 自动病虫害预警</span>
-                        </div>
-                        <div class="switch on" onclick="this.classList.toggle('on'); showToast('预警设置已更新')"><div class="switch-dot"></div></div>
+                        <div class="flex items-center"><i class="ri-shield-check-line text-slate-400 mr-3"></i><span class="text-xs font-bold text-slate-700">AI 自动诊断</span></div>
+                        <div class="switch on" onclick="this.classList.toggle('on'); showToast('设置已更新')"><div class="switch-dot"></div></div>
                     </div>
                     <div class="p-4 flex justify-between items-center">
-                        <div class="flex items-center">
-                            <i class="ri-mail-send-line text-slate-400 mr-3"></i>
-                            <span class="text-xs font-bold text-slate-700">每日农事简报推送</span>
-                        </div>
-                        <div class="switch" onclick="this.classList.toggle('on'); showToast('推送偏好已更改')"><div class="switch-dot"></div></div>
+                        <div class="flex items-center"><i class="ri-notification-badge-line text-slate-400 mr-3"></i><span class="text-xs font-bold text-slate-700">实时推送预警</span></div>
+                        <div class="switch" onclick="this.classList.toggle('on'); showToast('设置已更新')"><div class="switch-dot"></div></div>
                     </div>
                 </div>
 
                 <div class="card !p-0 overflow-hidden">
-                    <div class="p-4 border-b border-slate-50 flex items-center clickable" onclick="showToast('正在清理缓存...')">
-                        <i class="ri-delete-bin-line text-slate-400 mr-3"></i>
-                        <span class="text-xs font-bold text-slate-600">清除本地数据缓存</span>
-                    </div>
-                    <div class="p-4 flex items-center text-red-500 clickable" onclick="confirmLogout()">
-                        <i class="ri-logout-box-line mr-3"></i>
-                        <span class="text-xs font-bold">退出系统登录</span>
-                    </div>
+                    <div class="p-4 border-b border-slate-50 flex items-center clickable" onclick="syncData()"><i class="ri-refresh-line text-slate-400 mr-3"></i><span class="text-xs font-bold text-slate-600">手动同步云端数据</span></div>
+                    <div class="p-4 flex items-center text-red-500 clickable" onclick="location.reload()"><i class="ri-logout-box-line mr-3"></i><span class="text-xs font-bold">安全退出系统</span></div>
                 </div>
             </div>
 
         </main>
 
-        <nav class="fixed bottom-0 w-full max-w-[414px] bg-white border-t border-slate-100 flex justify-around py-3 px-2 z-40 pb-6">
-            <div onclick="showPage('home', this)" class="nav-item active flex flex-col items-center cursor-pointer w-16"><i class="ri-home-5-line text-2xl mb-0.5 text-slate-300"></i><span class="text-[9px] font-bold text-slate-400">Home</span></div>
-            <div onclick="showPage('prediction', this)" class="nav-item flex flex-col items-center cursor-pointer w-16"><i class="ri-bar-chart-2-line text-2xl mb-0.5 text-slate-300"></i><span class="text-[9px] font-bold text-slate-400">Metrics</span></div>
-            <div onclick="showPage('finance', this)" class="nav-item flex flex-col items-center cursor-pointer w-16"><i class="ri-wallet-3-line text-2xl mb-0.5 text-slate-300"></i><span class="text-[9px] font-bold text-slate-400">Harvest</span></div>
-            <div onclick="showPage('settings', this)" class="nav-item flex flex-col items-center cursor-pointer w-16"><i class="ri-user-3-line text-2xl mb-0.5 text-slate-300"></i><span class="text-[9px] font-bold text-slate-400">Settings</span></div>
-        </nav>
+        <div class="nav-island">
+            <div onclick="showPage('home', this)" class="nav-item active">
+                <i class="ri-home-5-line text-2xl"></i><span class="text-[9px] font-bold uppercase mt-1">Home</span>
+            </div>
+            <div onclick="showPage('metrics', this)" class="nav-item">
+                <i class="ri-bar-chart-2-line text-2xl"></i><span class="text-[9px] font-bold uppercase mt-1">Metrics</span>
+            </div>
+            <div onclick="showPage('harvest', this)" class="nav-item">
+                <i class="ri-wallet-3-line text-2xl"></i><span class="text-[9px] font-bold uppercase mt-1">Harvest</span>
+            </div>
+            <div onclick="showPage('settings', this)" class="nav-item">
+                <i class="ri-user-3-line text-2xl"></i><span class="text-[9px] font-bold uppercase mt-1">Admin</span>
+            </div>
+        </div>
     </div>
 
     <script>
-        // 1. 基础导航
+        // 1. 基础 UI 逻辑
         function showPage(pageId, element) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById(pageId).classList.add('active');
-            document.querySelectorAll('.nav-item').forEach(nav => {
-                nav.classList.remove('active');
-                nav.querySelector('i').className = nav.querySelector('i').className.replace('text-emerald-500', 'text-slate-300');
-                nav.querySelector('span').className = "text-[9px] font-bold text-slate-400";
-            });
-            if(element) {
-                element.classList.add('active');
-                element.querySelector('i').className = element.querySelector('i').className.replace('text-slate-300', 'text-emerald-500');
-                element.querySelector('span').className = "text-[9px] font-bold text-emerald-600";
-            }
+            document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+            element.classList.add('active');
         }
 
-        // 2. Settings 专题交互
-        function manageFields() {
-            const bodyHTML = `
-                <div class="space-y-2">
-                    <div onclick="switchField('Area A')" class="p-3 bg-slate-50 rounded-xl flex justify-between items-center cursor-pointer hover:bg-emerald-50">
-                        <span class="text-xs font-bold">1号地块 (Area A)</span>
-                        <i class="ri-checkbox-circle-fill text-emerald-500"></i>
-                    </div>
-                    <div onclick="switchField('Area B')" class="p-3 bg-slate-50 rounded-xl flex justify-between items-center cursor-pointer hover:bg-emerald-50">
-                        <span class="text-xs font-bold">2号地块 (Area B)</span>
-                        <i class="ri-checkbox-blank-circle-line text-slate-300"></i>
-                    </div>
-                    <div onclick="switchField('Zone C')" class="p-3 bg-slate-50 rounded-xl flex justify-between items-center cursor-pointer hover:bg-emerald-50">
-                        <span class="text-xs font-bold">3号测试区 (Zone C)</span>
-                        <i class="ri-checkbox-blank-circle-line text-slate-300"></i>
-                    </div>
-                </div>
-            `;
-            showModal('地块切换', bodyHTML);
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            document.getElementById('toastMsg').innerText = msg;
+            t.style.opacity = '1';
+            setTimeout(() => t.style.opacity = '0', 2000);
         }
 
-        function switchField(fieldName) {
-            document.getElementById('currentFieldLabel').innerText = fieldName;
-            document.getElementById('headerField').innerText = `Control Center • ${fieldName}`;
-            closeModal();
-            showToast(`已切换至 ${fieldName}`);
-        }
-
-        function syncData() {
-            const toast = document.getElementById('toast');
-            const icon = document.getElementById('toastIcon');
-            const msg = document.getElementById('toastMsg');
-            
-            icon.className = "ri-refresh-line animate-spin mr-2 text-green-400";
-            msg.innerText = "正在从网关抓取数据...";
-            toast.style.opacity = '1';
-            
-            setTimeout(() => {
-                icon.className = "ri-checkbox-circle-line mr-2 text-green-400";
-                msg.innerText = "同步完成！数据已更新";
-                setTimeout(() => { toast.style.opacity = '0'; }, 1500);
-            }, 2500);
-        }
-
-        function confirmLogout() {
-            showModal('退出系统', '确定要退出当前的管理员账号吗？未保存的草稿可能会丢失。');
-            document.getElementById('modalConfirmBtn').onclick = () => { location.reload(); };
-        }
-
-        // 3. 通用 UI 逻辑
-        function showModal(title, contentHTML) {
+        function showModal(title, body) {
             document.getElementById('modalTitle').innerText = title;
-            document.getElementById('modalBody').innerHTML = contentHTML;
-            document.querySelector('.modal-overlay').classList.add('open');
+            document.getElementById('modalBody').innerText = body;
+            document.getElementById('modal').classList.add('open');
         }
 
-        function closeModal(e) { 
-            if(!e || e.target.classList.contains('modal-overlay') || e.target.tagName === 'BUTTON') 
-                document.querySelector('.modal-overlay').classList.remove('open'); 
-        }
-
-        function showToast(msgText) {
-            const toast = document.getElementById('toast');
-            document.getElementById('toastIcon').className = "ri-checkbox-circle-line mr-2 text-green-400";
-            document.getElementById('toastMsg').innerText = msgText;
-            toast.style.opacity = '1';
-            setTimeout(() => { toast.style.opacity = '0'; }, 2000);
-        }
+        function closeModal() { document.getElementById('modal').classList.remove('open'); }
 
         function toggleSim() { document.getElementById('simulator').classList.toggle('open'); }
 
-        // --- 模拟器 & 初始化逻辑 ---
-        function updateSimulation() {
+        // 2. 模拟器联动逻辑 (V7.0 进化版)
+        let pieChart, barChart;
+        function runSim() {
             const rev = parseInt(document.querySelectorAll('input[type=range]')[0].value);
             const cost = parseInt(document.querySelectorAll('input[type=range]')[1].value);
-            document.getElementById('val-rev').innerText = rev;
-            document.getElementById('val-cost').innerText = cost;
-            document.getElementById('profitDisplay').innerText = (rev - cost).toLocaleString();
+            document.getElementById('sim-rev-val').innerText = rev;
+            document.getElementById('sim-cost-val').innerText = cost;
+            
+            const profit = rev - cost;
+            document.getElementById('display-profit').innerText = (profit > 0 ? profit : 0).toLocaleString();
+
+            // 更新图表
+            pieChart.data.datasets[0].data = [profit > 0 ? profit : 0, cost];
+            pieChart.update();
+            
+            const b = rev / 1500;
+            barChart.data.datasets[0].data = [b*0.8, b*1.1, b*0.9];
+            barChart.update();
         }
 
-        function handleAIUpload(input) {
+        // 3. 业务功能
+        function toggleTask(el) {
+            el.classList.toggle('done');
+            const icon = el.querySelector('i');
+            const text = el.querySelector('span');
+            if (el.classList.contains('done')) {
+                icon.className = "ri-checkbox-circle-fill text-emerald-500 mr-3 text-xl";
+                text.classList.add('task-done');
+                showToast("任务已标记完成");
+            } else {
+                icon.className = "ri-checkbox-circle-line text-slate-300 mr-3 text-xl";
+                text.classList.remove('task-done');
+            }
+        }
+
+        function switchField() {
+            const current = document.getElementById('fieldLabel').innerText;
+            const next = current === 'Area A' ? 'Area B' : 'Area A';
+            document.getElementById('fieldLabel').innerText = next;
+            document.getElementById('fieldIndicator').innerText = `Control Center • ${next}`;
+            showToast(`已切换至地块：${next}`);
+        }
+
+        function syncData() {
+            showToast("正在同步云端传感器数据...");
+            setTimeout(() => showToast("同步成功，数据已是最新"), 2000);
+        }
+
+        function processAI(input) {
             if (input.files && input.files[0]) {
-                showToast('正在上传并分析图片...');
-                // 模拟处理动画
                 document.getElementById('uploadZone').classList.add('hidden');
-                document.getElementById('resultZone').classList.remove('hidden');
-                document.getElementById('previewImg').src = URL.createObjectURL(input.files[0]);
-                document.getElementById('aiProgressBar').style.width = "100%";
+                document.getElementById('aiResult').classList.remove('hidden');
+                document.getElementById('aiPreview').src = URL.createObjectURL(input.files[0]);
                 setTimeout(() => {
-                    document.getElementById('aiStatusText').innerText = "✅ 叶片健康 (Healthy)";
+                    document.getElementById('aiStatus').innerText = "✅ 诊断结果：叶片健康";
+                    document.getElementById('aiStatus').classList.remove('animate-pulse');
                 }, 2000);
             }
         }
+
+        function resetAI() {
+            document.getElementById('uploadZone').classList.remove('hidden');
+            document.getElementById('aiResult').classList.add('hidden');
+            document.getElementById('aiInput').value = '';
+        }
+
+        // 4. 图表初始化
+        window.onload = function() {
+            // Growth Line
+            new Chart(document.getElementById('growthChart').getContext('2d'), {
+                type: 'line',
+                data: { labels: ['1月','2月','3月','4月','5月','6月'], datasets: [{ data: [20,35,45,60,75,92], borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.1)', fill: true, tension: 0.4 }] },
+                options: { plugins: { legend: { display: false } }, scales: { y: { display: false }, x: { grid: { display: false } } } }
+            });
+
+            // Harvest Pie
+            const ctxPie = document.createElement('canvas').getContext('2d'); // 虚拟 Canvas 用于 Harvest 页面初始化
+            pieChart = new Chart(document.getElementById('financePieChart').getContext('2d'), {
+                type: 'doughnut',
+                data: { labels: ['Profit','Cost'], datasets: [{ data: [25200, 20000], backgroundColor: ['#fbbf24','#ffffff'], borderWidth: 0 }] },
+                options: { cutout: '75%', plugins: { legend: { display: false } } }
+            });
+
+            // Harvest Bar
+            barChart = new Chart(document.getElementById('barChart').getContext('2d'), {
+                type: 'bar',
+                data: { labels: ['4月','5月','6月'], datasets: [{ data: [40,55,50], backgroundColor: '#10b981', borderRadius: 4 }, { data: [20,25,22], backgroundColor: '#ef4444', borderRadius: 4 }] },
+                options: { plugins: { legend: { display: false } }, scales: { y: { display: false }, x: { grid: { display: false } } } }
+            });
+            
+            runSim(); // 初始运行模拟器
+        };
     </script>
 </body>
 </html>
