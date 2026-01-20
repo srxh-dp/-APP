@@ -3,64 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>禾析智能 - 全交互终极版</title>
+    <title>禾析智能 - 饱和视觉版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #f0fdf4; display: flex; justify-content: center; min-height: 100vh; margin: 0; }
-        .app-container { width: 100%; max-width: 414px; background: #eff6f3; position: relative; overflow: hidden; min-height: 100vh; box-shadow: 0 0 50px rgba(0,0,0,0.1); }
-        .page { display: none; height: 100vh; overflow-y: auto; padding: 20px; padding-bottom: 100px; scroll-behavior: smooth; }
+        .app-container { width: 100%; max-width: 414px; background: #f1f5f9; position: relative; overflow: hidden; min-height: 100vh; box-shadow: 0 0 60px rgba(0,0,0,0.15); }
+        .page { display: none; height: 100vh; overflow-y: auto; padding: 20px; padding-bottom: 110px; scroll-behavior: smooth; }
         .page.active { display: block; }
         
-        /* 卡片交互 */
-        .card { background: white; border-radius: 20px; box-shadow: 0 4px 20px rgba(16, 185, 129, 0.08); margin-bottom: 16px; padding: 20px; transition: transform 0.1s, background-color 0.2s; }
-        .card:active { transform: scale(0.98); }
-        .clickable:active { background-color: #f8fafc; }
+        /* 卡片基础 */
+        .card { background: white; border-radius: 20px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03); margin-bottom: 16px; padding: 20px; border: 1px solid rgba(255,255,255,0.7); transition: transform 0.1s; }
+        .card:active { transform: scale(0.99); }
         
-        .card-dark { background: linear-gradient(135deg, #4b7d85 0%, #6ab29b 100%); color: white; box-shadow: 0 10px 25px rgba(75, 125, 133, 0.3); }
-        .card-green { background: linear-gradient(135deg, #56ab91 0%, #3a8d79 100%); color: white; }
-        .card-blue { background: linear-gradient(135deg, #5c8ab3 0%, #4a7296 100%); color: white; }
+        /* 特殊卡片背景 */
+        .card-dark { background: linear-gradient(135deg, #334155 0%, #475569 100%); color: white; position: relative; overflow: hidden; }
+        .card-green { background: linear-gradient(135deg, #059669 0%, #10b981 100%); color: white; }
+        .card-blue { background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%); color: white; }
+        .card-map { background-image: url('https://images.unsplash.com/photo-1524055988636-436cfa46e59e?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80'); background-size: cover; background-position: center; color: white; position: relative; }
+        .card-map::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.8), transparent); border-radius: 20px; }
         
-        /* 弹窗与遮罩 */
-        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 50; display: none; align-items: center; justify-content: center; backdrop-filter: blur(4px); opacity: 0; transition: opacity 0.3s; }
-        .modal-overlay.open { display: flex; opacity: 1; }
-        .modal-content { background: white; width: 90%; max-width: 340px; border-radius: 24px; padding: 24px; transform: scale(0.9); transition: transform 0.3s; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
-        .modal-overlay.open .modal-content { transform: scale(1); }
-
-        /* Toast 提示框 */
-        #toast { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.9); background: rgba(0,0,0,0.8); color: white; padding: 12px 24px; border-radius: 50px; font-size: 14px; font-weight: bold; opacity: 0; pointer-events: none; transition: all 0.3s; z-index: 100; display: flex; items-center; box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
-        #toast.show { opacity: 1; transform: translate(-50%, -50%) scale(1); top: 45%; }
-
-        /* 模拟器 */
+        /* UI组件 */
         #simulator { transform: translateY(110%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         #simulator.open { transform: translateY(0); }
-        
-        /* 其他细节 */
         ::-webkit-scrollbar { display: none; }
-        .nav-item.active i, .nav-item.active span { color: #10b981; font-weight: 700; }
+        .nav-item.active i, .nav-item.active span { color: #059669; font-weight: 800; }
         .task-item.done .task-text { text-decoration: line-through; color: #cbd5e1; }
         .task-item.done i { color: #10b981; }
+        
+        /* 装饰性光斑 */
+        .glow { position: absolute; width: 150px; height: 150px; background: radial-gradient(circle, rgba(16,185,129,0.2) 0%, transparent 70%); pointer-events: none; z-index: 0; }
     </style>
 </head>
 <body>
 
     <div class="app-container">
-        
-        <div id="toast"><i class="ri-checkbox-circle-line mr-2 text-green-400"></i> <span id="toastMsg">操作成功</span></div>
+        <div class="glow" style="top: -50px; left: -50px;"></div>
+        <div class="glow" style="bottom: 100px; right: -50px; background: radial-gradient(circle, rgba(59,130,246,0.15) 0%, transparent 70%);"></div>
 
-        <div id="modal" class="modal-overlay" onclick="closeModal(event)">
-            <div class="modal-content" onclick="event.stopPropagation()">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 id="modalTitle" class="text-lg font-bold text-slate-800">标题</h3>
-                    <button onclick="closeModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200">✕</button>
-                </div>
-                <div id="modalBody">内容区域</div>
-            </div>
+        <div id="toast" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-slate-900/90 text-white px-6 py-3 rounded-full text-sm font-bold opacity-0 pointer-events-none transition-opacity z-50 shadow-xl flex items-center">
+            <i class="ri-checkbox-circle-line mr-2 text-green-400"></i> <span id="toastMsg">Success</span>
         </div>
-        
-        <div id="simulator" class="absolute bottom-4 left-4 right-4 bg-slate-800/95 backdrop-blur-md text-white z-50 p-5 rounded-2xl shadow-2xl border border-slate-600">
+
+        <div id="simulator" class="absolute bottom-4 left-4 right-4 bg-slate-800/95 backdrop-blur-md text-white z-50 p-5 rounded-3xl shadow-2xl border border-slate-600">
             <div class="flex justify-between items-center mb-4">
                 <h4 class="font-bold text-green-400 text-sm flex items-center"><i class="ri-equalizer-line mr-2"></i> 数据模拟控制台</h4>
                 <button onclick="toggleSim()" class="text-xs bg-slate-700 hover:bg-slate-600 px-3 py-1 rounded-full transition">收起</button>
@@ -71,21 +58,27 @@
                     <input type="range" min="0" max="100" value="75" class="w-full h-2 bg-slate-600 rounded-lg appearance-none cursor-pointer accent-green-500" oninput="updateMoisture(this.value)">
                 </div>
                 <div>
-                    <div class="flex justify-between text-xs text-slate-400 mb-2"><span>预计收益联动</span><span class="text-white font-mono font-bold">¥<span id="val-profit">45200</span></span></div>
+                    <div class="flex justify-between text-xs text-slate-400 mb-2"><span>预计收益</span><span class="text-white font-mono font-bold">¥<span id="val-profit">45200</span></span></div>
                     <input type="range" min="10000" max="80000" step="1000" value="45200" class="w-full h-2 bg-slate-600 rounded-lg appearance-none cursor-pointer accent-blue-500" oninput="updateProfit(this.value)">
                 </div>
             </div>
         </div>
         
-        <header class="pt-10 px-6 pb-2 flex justify-between items-center bg-transparent sticky top-0 z-20 backdrop-blur-sm">
-            <h1 class="text-lg font-black text-slate-700 tracking-wide uppercase">He Xi Intelligent</h1>
-            <div class="flex space-x-4 text-slate-500">
-                <button onclick="showNotifications()" class="relative active:scale-90 transition">
-                    <i class="ri-notification-3-line text-xl hover:text-green-600 transition"></i>
-                    <span class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full border border-white"></span>
+        <header class="pt-12 px-6 pb-4 flex justify-between items-center bg-transparent sticky top-0 z-20 backdrop-blur-sm">
+            <div>
+                <h1 class="text-xl font-black text-slate-800 tracking-tight">HE XI <span class="text-emerald-600">AI</span></h1>
+                <div class="flex items-center space-x-1 mt-0.5">
+                    <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                    <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wide">System Online</p>
+                </div>
+            </div>
+            <div class="flex space-x-3 text-slate-500">
+                <button onclick="showToast('无新通知')" class="w-10 h-10 bg-white rounded-full shadow-sm flex items-center justify-center active:scale-95 transition">
+                    <i class="ri-notification-3-line text-lg"></i>
+                    <span class="absolute top-3 right-3 w-2 h-2 bg-red-500 rounded-full border border-white"></span>
                 </button>
-                <button onclick="showPage('settings', document.getElementById('nav-settings'))" class="active:scale-90 transition">
-                    <i class="ri-settings-4-line text-xl hover:text-green-600 transition"></i>
+                <button onclick="toggleSim()" class="w-10 h-10 bg-slate-800 text-white rounded-full shadow-sm flex items-center justify-center active:scale-95 transition">
+                    <i class="ri-equalizer-line text-lg"></i>
                 </button>
             </div>
         </header>
@@ -93,113 +86,149 @@
         <main class="relative z-10">
             
             <div id="home" class="page active">
-                <div class="card card-dark relative overflow-hidden active:scale-[0.99] transition cursor-pointer" onclick="showToast('天气数据已更新')">
-                    <p class="text-[10px] opacity-80 font-bold uppercase tracking-wider mb-1">Season Outlook</p>
-                    <h2 id="statusText" class="text-3xl font-black mb-2">OPTIMAL</h2>
-                    <div class="flex items-center text-xs opacity-90 mb-4">
-                        <i class="ri-map-pin-line mr-1"></i> <span>Zone A: Rice Field</span>
+                <div class="card card-dark">
+                    <div class="flex justify-between items-start mb-6 relative z-10">
+                        <div>
+                            <p class="text-[10px] opacity-60 font-bold uppercase mb-1">Season Outlook</p>
+                            <h2 id="statusText" class="text-3xl font-black text-white">OPTIMAL</h2>
+                            <p class="text-[10px] text-emerald-300 font-bold mt-1 bg-emerald-900/50 px-2 py-0.5 rounded w-fit">Suitable for Fertilizing</p>
+                        </div>
+                        <i class="ri-sun-cloudy-line text-4xl text-yellow-300"></i>
                     </div>
-                    <div class="flex space-x-4 overflow-x-auto pb-2 border-t border-white/20 pt-3 no-scrollbar">
-                        <div class="text-center min-w-[50px]"><p class="text-[10px] opacity-70">Now</p><i class="ri-sun-line text-yellow-300 text-lg my-1"></i><p class="text-xs font-bold">26°</p></div>
-                        <div class="text-center min-w-[50px]"><p class="text-[10px] opacity-70">1PM</p><i class="ri-sun-cloudy-line text-white text-lg my-1"></i><p class="text-xs font-bold">28°</p></div>
-                        <div class="text-center min-w-[50px]"><p class="text-[10px] opacity-70">2PM</p><i class="ri-cloudy-line text-white text-lg my-1"></i><p class="text-xs font-bold">27°</p></div>
-                        <div class="text-center min-w-[50px]"><p class="text-[10px] opacity-70">3PM</p><i class="ri-rainy-line text-blue-200 text-lg my-1"></i><p class="text-xs font-bold">24°</p></div>
+                    <div class="flex space-x-5 overflow-x-auto pb-1 no-scrollbar relative z-10 border-t border-white/10 pt-4">
+                        <div class="text-center min-w-[40px]"><p class="text-[9px] opacity-50 mb-1">Now</p><i class="ri-sun-line text-yellow-300 mb-1"></i><p class="text-xs font-bold">26°</p></div>
+                        <div class="text-center min-w-[40px]"><p class="text-[9px] opacity-50 mb-1">1PM</p><i class="ri-cloudy-line text-white mb-1"></i><p class="text-xs font-bold">28°</p></div>
+                        <div class="text-center min-w-[40px]"><p class="text-[9px] opacity-50 mb-1">2PM</p><i class="ri-rainy-line text-blue-300 mb-1"></i><p class="text-xs font-bold">24°</p></div>
+                        <div class="text-center min-w-[40px]"><p class="text-[9px] opacity-50 mb-1">3PM</p><i class="ri-thunderstorms-line text-purple-300 mb-1"></i><p class="text-xs font-bold">22°</p></div>
+                        <div class="text-center min-w-[40px]"><p class="text-[9px] opacity-50 mb-1">4PM</p><i class="ri-moon-cloudy-line text-slate-300 mb-1"></i><p class="text-xs font-bold">20°</p></div>
+                    </div>
+                    <div class="absolute -right-4 -bottom-8 opacity-10 text-9xl"><i class="ri-plant-fill"></i></div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3 mb-4">
+                    <div class="card !mb-0 flex flex-col items-center justify-center py-6 relative overflow-hidden">
+                        <div class="absolute top-2 left-2 flex items-center space-x-1"><div class="w-1.5 h-1.5 bg-green-500 rounded-full"></div><span class="text-[9px] font-bold text-slate-400">Live</span></div>
+                        <div class="relative w-24 h-24 mb-2">
+                            <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                                <path class="text-slate-100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="3" />
+                                <path id="moistCircle" class="text-emerald-500 transition-all duration-500" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="3" stroke-dasharray="75, 100" stroke-linecap="round" />
+                            </svg>
+                            <div class="absolute inset-0 flex items-center justify-center font-black text-xl text-slate-800"><span id="moistText">75</span>%</div>
+                        </div>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase">Soil Moisture</p>
+                    </div>
+                    
+                    <div class="grid grid-rows-2 gap-3">
+                        <div class="card !mb-0 !p-3 flex flex-col justify-center">
+                            <div class="flex justify-between items-center mb-1"><span class="text-[9px] text-slate-400 font-bold uppercase">Nitrogen</span><i class="ri-flask-fill text-blue-500 text-xs"></i></div>
+                            <p class="text-lg font-black text-slate-700">High</p>
+                            <div class="w-full bg-slate-100 h-1 mt-1 rounded-full"><div class="bg-blue-500 w-[80%] h-full rounded-full"></div></div>
+                        </div>
+                        <div class="card !mb-0 !p-3 flex flex-col justify-center">
+                            <div class="flex justify-between items-center mb-1"><span class="text-[9px] text-slate-400 font-bold uppercase">PH Level</span><i class="ri-drop-fill text-purple-500 text-xs"></i></div>
+                            <p class="text-lg font-black text-slate-700">6.8</p>
+                            <div class="w-full bg-slate-100 h-1 mt-1 rounded-full"><div class="bg-purple-500 w-[60%] h-full rounded-full"></div></div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="card flex items-center justify-between" onclick="toggleSim()">
-                    <div class="relative w-24 h-24 flex-shrink-0">
-                        <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-                            <path class="text-slate-100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="3" />
-                            <path id="moistCircle" class="text-emerald-500 transition-all duration-500" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="3" stroke-dasharray="75, 100" stroke-linecap="round" />
-                        </svg>
-                        <div class="absolute inset-0 flex items-center justify-center font-black text-xl text-slate-700"><span id="moistText">75</span>%</div>
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wide mb-3 pl-1">Device Status</h3>
+                <div class="flex space-x-3 overflow-x-auto pb-2 no-scrollbar mb-2">
+                    <div class="bg-white p-3 rounded-xl min-w-[110px] shadow-sm border border-slate-100 flex items-center space-x-3">
+                        <div class="w-8 h-8 rounded-full bg-green-50 flex items-center justify-center text-green-600"><i class="ri-sensor-line"></i></div>
+                        <div><p class="text-[9px] text-slate-400 font-bold">Sensor A</p><p class="text-xs font-black text-slate-700">Online</p></div>
                     </div>
-                    <div class="pl-4 flex-1 grid grid-cols-2 gap-2">
-                        <div class="bg-slate-50 p-2 rounded-lg text-center"><p class="text-[9px] text-slate-400 font-bold">N-P-K</p><p class="text-xs font-bold text-slate-700">Good</p></div>
-                        <div class="bg-slate-50 p-2 rounded-lg text-center"><p class="text-[9px] text-slate-400 font-bold">Ph</p><p class="text-xs font-bold text-slate-700">6.8</p></div>
-                        <div class="bg-slate-50 p-2 rounded-lg text-center"><p class="text-[9px] text-slate-400 font-bold">Temp</p><p class="text-xs font-bold text-slate-700">24°</p></div>
-                        <div class="bg-slate-50 p-2 rounded-lg text-center"><p class="text-[9px] text-slate-400 font-bold">Light</p><p class="text-xs font-bold text-slate-700">High</p></div>
+                    <div class="bg-white p-3 rounded-xl min-w-[110px] shadow-sm border border-slate-100 flex items-center space-x-3">
+                        <div class="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-600"><i class="ri-plane-line"></i></div>
+                        <div><p class="text-[9px] text-slate-400 font-bold">Drone</p><p class="text-xs font-black text-slate-700">92% Bat</p></div>
+                    </div>
+                    <div class="bg-white p-3 rounded-xl min-w-[110px] shadow-sm border border-slate-100 flex items-center space-x-3">
+                        <div class="w-8 h-8 rounded-full bg-orange-50 flex items-center justify-center text-orange-600"><i class="ri-router-line"></i></div>
+                        <div><p class="text-[9px] text-slate-400 font-bold">Gateway</p><p class="text-xs font-black text-slate-700">Good</p></div>
                     </div>
                 </div>
 
-                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wide mb-3 pl-1">Today's Tasks</h3>
-                <div class="card !p-0 overflow-hidden" id="taskList">
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wide mb-3 pl-1">Tasks</h3>
+                <div class="card !p-0 overflow-hidden">
                     <div onclick="toggleTask(this)" class="task-item p-4 border-b border-slate-50 flex items-center hover:bg-slate-50 cursor-pointer transition">
-                        <i class="ri-checkbox-circle-line text-slate-300 text-xl mr-3 transition"></i>
-                        <div class="flex-1"><p class="task-text text-xs font-bold text-slate-700">Check irrigation pump</p><p class="text-[9px] text-slate-400">Area B • 09:00 AM</p></div>
+                        <i class="ri-checkbox-circle-line text-slate-300 text-xl mr-3"></i>
+                        <div class="flex-1"><p class="task-text text-xs font-bold text-slate-700">Check irrigation</p><p class="text-[9px] text-slate-400">09:00 AM</p></div>
                     </div>
-                    <div onclick="toggleTask(this)" class="task-item p-4 border-b border-slate-50 flex items-center hover:bg-slate-50 cursor-pointer transition">
-                        <i class="ri-checkbox-circle-line text-slate-300 text-xl mr-3 transition"></i>
-                        <div class="flex-1"><p class="task-text text-xs font-bold text-slate-700">Apply bio-fertilizer</p><p class="text-[9px] text-slate-400">Area A • 02:00 PM</p></div>
-                    </div>
-                </div>
-                <div onclick="addNewTask()" class="bg-white p-3 rounded-xl shadow-sm text-center text-[10px] text-emerald-600 font-bold cursor-pointer active:bg-slate-50 transition border border-dashed border-emerald-200">
-                    + Add New Task
+                    <div class="p-3 text-center text-xs text-emerald-600 font-bold cursor-pointer active:bg-slate-50">+ Add Task</div>
                 </div>
             </div>
 
             <div id="prediction" class="page">
                 <div class="card card-green relative overflow-hidden">
-                    <p class="text-[10px] opacity-80 font-bold uppercase tracking-wider mb-1">Prediction Model</p>
-                    <h2 class="text-4xl font-black mb-1">+15%</h2>
-                    <p class="text-[10px] opacity-80 mb-4">Projected Yield Increase</p>
-                    <div class="inline-flex bg-black/20 p-1 rounded-lg">
-                        <button onclick="switchPeriod(this, 7)" class="period-btn active text-[9px] bg-white text-emerald-700 px-3 py-1 rounded font-bold shadow-sm transition">7 Days</button>
-                        <button onclick="switchPeriod(this, 30)" class="period-btn text-[9px] text-white/70 px-3 py-1 font-bold transition">30 Days</button>
+                    <div class="flex justify-between items-start z-10 relative">
+                        <div>
+                            <p class="text-[10px] opacity-80 font-bold uppercase tracking-wider mb-1">Harvest Prediction</p>
+                            <h2 class="text-4xl font-black mb-1">+15%</h2>
+                            <p class="text-[10px] opacity-80">Vs last year average</p>
+                        </div>
+                        <div class="bg-white/20 p-2 rounded-lg text-center backdrop-blur-sm">
+                            <p class="text-[9px] font-bold opacity-80">Confidence</p>
+                            <p class="text-lg font-black">94%</p>
+                        </div>
                     </div>
+                    <div class="mt-4 flex space-x-3">
+                        <span class="text-[9px] bg-white/20 px-2 py-1 rounded font-bold">🌾 High Yield</span>
+                        <span class="text-[9px] bg-white/20 px-2 py-1 rounded font-bold">💧 Water Opt</span>
+                    </div>
+                </div>
+
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wide mb-3 pl-1">Satellite Analysis</h3>
+                <div class="card card-map h-40 flex flex-col justify-end p-4 shadow-lg mb-4">
+                    <div class="relative z-10 flex justify-between items-end">
+                        <div>
+                            <p class="text-xs font-bold text-white">NDVI Heatmap</p>
+                            <p class="text-[9px] text-slate-300">Updated: 10 mins ago</p>
+                        </div>
+                        <button class="bg-white text-slate-900 text-[10px] font-bold px-3 py-1.5 rounded-full shadow-md active:scale-95 transition">View Full Map</button>
+                    </div>
+                    <div class="absolute inset-0 bg-gradient-to-tr from-green-500/30 to-yellow-500/20 mix-blend-overlay rounded-[20px]"></div>
                 </div>
 
                 <div class="card">
-                    <div class="flex justify-between items-center mb-4"><p class="text-xs font-bold text-slate-700">Growth Stage</p><span class="text-[10px] text-slate-400">Day 45/120</span></div>
-                    <div class="relative pt-2 pb-6">
-                        <div class="h-1 bg-slate-100 w-full absolute top-2"></div>
-                        <div class="h-1 bg-emerald-500 w-1/2 absolute top-2 transition-all duration-1000"></div>
-                        <div class="flex justify-between relative z-10">
-                            <div class="flex flex-col items-center"><div class="w-4 h-4 bg-emerald-500 rounded-full border-2 border-white shadow-sm"></div><span class="text-[9px] text-slate-400 mt-2">Seed</span></div>
-                            <div class="flex flex-col items-center"><div class="w-4 h-4 bg-emerald-500 rounded-full border-2 border-white shadow-sm"></div><span class="text-[9px] text-slate-800 font-bold mt-2">Veg</span></div>
-                            <div class="flex flex-col items-center"><div class="w-4 h-4 bg-slate-200 rounded-full border-2 border-white"></div><span class="text-[9px] text-slate-400 mt-2">Flower</span></div>
-                            <div class="flex flex-col items-center"><div class="w-4 h-4 bg-slate-200 rounded-full border-2 border-white"></div><span class="text-[9px] text-slate-400 mt-2">Harv</span></div>
-                        </div>
-                    </div>
-                </div>
-
-                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wide mb-3 pl-1">Crop Vitals</h3>
-                <div class="card space-y-4">
-                    <div onclick="showToast('叶绿素含量正常')" class="cursor-pointer active:opacity-70"><div class="flex justify-between text-[10px] mb-1"><span class="text-slate-500 font-bold">Chlorophyll</span><span class="text-emerald-600 font-bold">92%</span></div><div class="h-2 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-emerald-500 w-[92%] rounded-full"></div></div></div>
-                    <div onclick="showToast('氮含量偏低，请注意')" class="cursor-pointer active:opacity-70"><div class="flex justify-between text-[10px] mb-1"><span class="text-slate-500 font-bold">Nitrogen</span><span class="text-blue-500 font-bold">78%</span></div><div class="h-2 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-blue-500 w-[78%] rounded-full"></div></div></div>
+                    <div class="flex justify-between items-center mb-4"><p class="text-xs font-bold text-slate-700">Growth Progress</p><span class="text-[10px] text-emerald-500 font-bold bg-emerald-50 px-2 py-0.5 rounded">Live</span></div>
+                    <canvas id="growthChart" height="200"></canvas>
                 </div>
             </div>
 
             <div id="finance" class="page">
-                <div class="card card-blue relative overflow-hidden" onclick="toggleSim()">
-                    <h3 class="text-xs font-bold opacity-90 uppercase tracking-wide mb-4">Financial Overview</h3>
+                <div class="card card-blue relative overflow-hidden">
+                    <h3 class="text-xs font-bold opacity-90 uppercase tracking-wide mb-4">Net Revenue</h3>
                     <div class="flex items-center justify-between">
-                        <div><p class="text-[10px] opacity-70 mb-1">Net Revenue</p><p class="text-2xl font-bold">¥<span id="profitDisplay">45,200</span></p></div>
+                        <div>
+                            <p class="text-3xl font-black">¥<span id="profitDisplay">45,200</span></p>
+                            <p class="text-[10px] opacity-70 mt-1">▲ 12.5% from last season</p>
+                        </div>
                         <div class="relative w-20 h-20"><canvas id="financePieChart"></canvas></div>
                     </div>
                 </div>
 
-                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wide mb-3 pl-1">Live Market (Click to View)</h3>
-                <div class="flex space-x-3 overflow-x-auto pb-2 no-scrollbar mb-2">
-                    <div onclick="showMarketDetail('Rice')" class="bg-white p-3 rounded-xl min-w-[100px] shadow-sm border border-slate-100 active:scale-95 transition cursor-pointer">
-                        <p class="text-[9px] text-slate-400 uppercase font-bold">Rice</p><p class="text-sm font-black text-slate-700 mt-1">¥3.24</p><p class="text-[9px] text-emerald-500 font-bold">▲ 0.12%</p>
+                <div class="grid grid-cols-2 gap-3 mb-4">
+                    <div class="card !mb-0 !p-4">
+                        <p class="text-[9px] text-slate-400 font-bold uppercase mb-2">Est. ROI</p>
+                        <p class="text-2xl font-black text-slate-800">145%</p>
+                        <div class="w-full bg-slate-100 h-1.5 mt-2 rounded-full"><div class="bg-emerald-500 w-full h-full rounded-full"></div></div>
+                        <p class="text-[9px] text-emerald-600 font-bold mt-1">Excellent</p>
                     </div>
-                    <div onclick="showMarketDetail('Corn')" class="bg-white p-3 rounded-xl min-w-[100px] shadow-sm border border-slate-100 active:scale-95 transition cursor-pointer">
-                        <p class="text-[9px] text-slate-400 uppercase font-bold">Corn</p><p class="text-sm font-black text-slate-700 mt-1">¥2.85</p><p class="text-[9px] text-red-500 font-bold">▼ 0.05%</p>
-                    </div>
-                    <div onclick="showMarketDetail('Wheat')" class="bg-white p-3 rounded-xl min-w-[100px] shadow-sm border border-slate-100 active:scale-95 transition cursor-pointer">
-                        <p class="text-[9px] text-slate-400 uppercase font-bold">Wheat</p><p class="text-sm font-black text-slate-700 mt-1">¥3.10</p><p class="text-[9px] text-emerald-500 font-bold">▲ 0.01%</p>
+                    <div class="card !mb-0 !p-4">
+                        <p class="text-[9px] text-slate-400 font-bold uppercase mb-2">Break-even</p>
+                        <p class="text-2xl font-black text-slate-800">Day 82</p>
+                        <div class="w-full bg-slate-100 h-1.5 mt-2 rounded-full"><div class="bg-blue-500 w-[82%] h-full rounded-full"></div></div>
+                        <p class="text-[9px] text-slate-400 font-bold mt-1">Current: Day 75</p>
                     </div>
                 </div>
 
                 <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wide mb-3 pl-1">Recent Transactions</h3>
                 <div class="card !p-0 overflow-hidden">
-                    <div class="clickable p-4 border-b border-slate-50 flex items-center cursor-pointer" onclick="showToast('订单详情加载中...')">
+                    <div class="p-4 border-b border-slate-50 flex items-center">
                         <div class="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-500 mr-3"><i class="ri-shopping-cart-line"></i></div>
                         <div class="flex-1"><p class="text-xs font-bold text-slate-700">Fertilizer</p><p class="text-[9px] text-slate-400">10:00 AM</p></div><span class="text-xs font-bold text-slate-800">-¥1,200</span>
                     </div>
-                    <div class="clickable p-4 flex items-center cursor-pointer" onclick="showToast('收入已入账')">
+                    <div class="p-4 flex items-center">
                         <div class="w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-500 mr-3"><i class="ri-coins-line"></i></div>
                         <div class="flex-1"><p class="text-xs font-bold text-slate-700">Crop Sales</p><p class="text-[9px] text-slate-400">Yesterday</p></div><span class="text-xs font-bold text-emerald-600">+¥5,400</span>
                     </div>
@@ -211,121 +240,80 @@
                     <img src="https://i.pravatar.cc/150?u=hexi" class="w-12 h-12 rounded-full border-2 border-slate-100">
                     <div><h3 class="font-bold text-slate-800 text-sm">Li Hua (李华)</h3><p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Farmer ID: #4128</p></div>
                 </div>
+
+                <div class="card bg-slate-800 text-white flex justify-between items-center relative overflow-hidden">
+                    <div class="relative z-10">
+                        <p class="text-[10px] text-yellow-400 font-bold uppercase mb-1">Pro Plan</p>
+                        <h3 class="text-lg font-bold">Smart Farming+</h3>
+                        <p class="text-[9px] text-slate-400 mt-1">Valid until Dec 2026</p>
+                    </div>
+                    <button class="relative z-10 bg-white text-slate-900 text-[10px] font-bold px-3 py-1.5 rounded-full">Manage</button>
+                    <div class="absolute -right-4 -bottom-8 text-7xl text-white opacity-5"><i class="ri-vip-crown-fill"></i></div>
+                </div>
+
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wide mb-3 pl-1">Farm Overview</h3>
+                <div class="card card-map h-32 flex items-center justify-center p-0 overflow-hidden relative">
+                     <div class="absolute inset-0 bg-black/20"></div>
+                     <div class="relative z-10 bg-white/90 backdrop-blur-sm px-4 py-2 rounded-xl flex items-center space-x-3">
+                         <i class="ri-map-pin-2-fill text-red-500 text-xl"></i>
+                         <div><p class="text-xs font-bold text-slate-800">Zone A - Rice</p><p class="text-[9px] text-slate-500">12.5 Acres</p></div>
+                     </div>
+                </div>
+
                 <div class="card !p-0 overflow-hidden">
-                    <div onclick="toggleSim()" class="clickable p-4 border-b border-slate-50 flex items-center cursor-pointer">
-                        <i class="ri-equalizer-line text-indigo-500 mr-3 text-lg"></i><div class="flex-1 text-xs font-bold text-indigo-600">Open Data Simulator</div><i class="ri-arrow-right-s-line text-slate-300"></i>
+                    <div onclick="toggleSim()" class="p-4 border-b border-slate-50 flex items-center hover:bg-slate-50 cursor-pointer">
+                        <i class="ri-equalizer-line text-indigo-500 mr-3 text-lg"></i><div class="flex-1 text-xs font-bold text-indigo-600">Open Data Simulator</div>
                     </div>
-                    <div onclick="simulateExport()" class="clickable p-4 border-b border-slate-50 flex items-center cursor-pointer">
-                        <i class="ri-download-cloud-line text-slate-400 mr-3 text-lg"></i><div class="flex-1 text-xs font-bold text-slate-600">Export Report (PDF)</div><i class="ri-arrow-right-s-line text-slate-300"></i>
-                    </div>
-                    <div onclick="showToast('个人资料已保存')" class="clickable p-4 flex items-center cursor-pointer">
-                        <i class="ri-edit-line text-slate-400 mr-3 text-lg"></i><div class="flex-1 text-xs font-bold text-slate-600">Edit Profile</div><i class="ri-arrow-right-s-line text-slate-300"></i>
+                    <div class="p-4 flex items-center hover:bg-slate-50 cursor-pointer">
+                        <i class="ri-download-cloud-line text-slate-400 mr-3 text-lg"></i><div class="flex-1 text-xs font-bold text-slate-600">Export Report</div>
                     </div>
                 </div>
-                <button onclick="window.location.reload()" class="w-full bg-slate-200 text-slate-600 py-3 rounded-xl font-bold text-xs shadow-sm mt-4 hover:bg-red-50 hover:text-red-500 transition">LOG OUT</button>
             </div>
+
         </main>
 
         <nav class="fixed bottom-0 w-full max-w-[414px] bg-white border-t border-slate-100 flex justify-around py-3 px-2 z-40 pb-6">
-            <div onclick="showPage('home', this)" class="nav-item active flex flex-col items-center cursor-pointer w-16 transition active:scale-90"><i class="ri-home-5-line nav-icon mb-1"></i><span class="text-[9px] font-medium text-slate-400">Home</span></div>
-            <div onclick="showPage('prediction', this)" class="nav-item flex flex-col items-center cursor-pointer w-16 transition active:scale-90"><i class="ri-plant-line nav-icon mb-1"></i><span class="text-[9px] font-medium text-slate-400">Metrics</span></div>
-            <div onclick="showPage('finance', this)" class="nav-item flex flex-col items-center cursor-pointer w-16 transition active:scale-90"><i class="ri-wallet-3-line nav-icon mb-1"></i><span class="text-[9px] font-medium text-slate-400">Harvest</span></div>
-            <div id="nav-settings" onclick="showPage('settings', this)" class="nav-item flex flex-col items-center cursor-pointer w-16 transition active:scale-90"><i class="ri-user-3-line nav-icon mb-1"></i><span class="text-[9px] font-medium text-slate-400">Settings</span></div>
+            <div onclick="showPage('home', this)" class="nav-item active flex flex-col items-center cursor-pointer w-16 transition active:scale-90"><i class="ri-home-5-line text-2xl mb-0.5 text-slate-300"></i><span class="text-[9px] font-bold text-slate-400">Home</span></div>
+            <div onclick="showPage('prediction', this)" class="nav-item flex flex-col items-center cursor-pointer w-16 transition active:scale-90"><i class="ri-plant-line text-2xl mb-0.5 text-slate-300"></i><span class="text-[9px] font-bold text-slate-400">Metrics</span></div>
+            <div onclick="showPage('finance', this)" class="nav-item flex flex-col items-center cursor-pointer w-16 transition active:scale-90"><i class="ri-wallet-3-line text-2xl mb-0.5 text-slate-300"></i><span class="text-[9px] font-bold text-slate-400">Harvest</span></div>
+            <div onclick="showPage('settings', this)" class="nav-item flex flex-col items-center cursor-pointer w-16 transition active:scale-90"><i class="ri-user-3-line text-2xl mb-0.5 text-slate-300"></i><span class="text-[9px] font-bold text-slate-400">Settings</span></div>
         </nav>
     </div>
 
     <script>
-        let pieChart;
+        let pieChart, growthChart;
 
-        // 页面切换
         function showPage(pageId, element) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById(pageId).classList.add('active');
-            document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
-            if(element) element.classList.add('active');
+            document.querySelectorAll('.nav-item').forEach(nav => {
+                nav.classList.remove('active');
+                nav.querySelector('i').className = nav.querySelector('i').className.replace('text-emerald-500', 'text-slate-300');
+                nav.querySelector('span').className = "text-[9px] font-bold text-slate-400";
+            });
+            if(element) {
+                element.classList.add('active');
+                element.querySelector('i').className = element.querySelector('i').className.replace('text-slate-300', 'text-emerald-500');
+                element.querySelector('span').className = "text-[9px] font-bold text-emerald-600";
+            }
         }
 
-        // 全局 Toast 提示
         function showToast(msg) {
             const toast = document.getElementById('toast');
             document.getElementById('toastMsg').innerText = msg;
-            toast.classList.add('show');
-            setTimeout(() => toast.classList.remove('show'), 2000);
+            toast.style.opacity = '1';
+            setTimeout(() => toast.style.opacity = '0', 2000);
         }
 
-        // 弹窗系统
-        function openModal(title, contentHTML) {
-            document.getElementById('modalTitle').innerText = title;
-            document.getElementById('modalBody').innerHTML = contentHTML;
-            document.querySelector('.modal-overlay').classList.add('open');
-        }
-        function closeModal(e) { 
-            if(!e || e.target.classList.contains('modal-overlay') || e.target.tagName === 'BUTTON') 
-                document.querySelector('.modal-overlay').classList.remove('open'); 
-        }
-
-        // 业务交互逻辑
         function toggleTask(el) {
             el.classList.toggle('done');
             const icon = el.querySelector('i');
             if(el.classList.contains('done')) {
                 icon.className = "ri-checkbox-circle-fill text-emerald-500 text-xl mr-3 transition";
-                showToast("任务已完成");
+                showToast("Task Completed");
             } else {
                 icon.className = "ri-checkbox-circle-line text-slate-300 text-xl mr-3 transition";
             }
-        }
-
-        function addNewTask() {
-            const taskName = prompt("请输入新任务名称:");
-            if(taskName) {
-                const list = document.getElementById('taskList');
-                const newItem = document.createElement('div');
-                newItem.className = "task-item p-4 border-b border-slate-50 flex items-center hover:bg-slate-50 cursor-pointer transition";
-                newItem.onclick = function() { toggleTask(this) };
-                newItem.innerHTML = `<i class="ri-checkbox-circle-line text-slate-300 text-xl mr-3 transition"></i><div class="flex-1"><p class="task-text text-xs font-bold text-slate-700">${taskName}</p><p class="text-[9px] text-slate-400">刚刚创建</p></div>`;
-                list.insertBefore(newItem, list.firstChild);
-                showToast("新任务添加成功");
-            }
-        }
-
-        function switchPeriod(btn, days) {
-            document.querySelectorAll('.period-btn').forEach(b => {
-                b.classList.remove('bg-white', 'text-emerald-700', 'shadow-sm');
-                b.classList.add('text-white/70');
-            });
-            btn.classList.remove('text-white/70');
-            btn.classList.add('bg-white', 'text-emerald-700', 'shadow-sm');
-            showToast(`已切换至 ${days} 天预测模型`);
-        }
-
-        function showMarketDetail(crop) {
-            openModal(`${crop} 市场走势`, `
-                <div class="bg-slate-50 p-4 rounded-xl mb-4">
-                    <p class="text-xs text-slate-500">当前价格</p>
-                    <p class="text-3xl font-black text-slate-800">¥3.24 <span class="text-xs text-emerald-500 font-bold">▲ 2.4%</span></p>
-                </div>
-                <div class="h-32 bg-slate-100 rounded-lg flex items-end justify-between px-2 pb-2">
-                    <div class="w-2 bg-emerald-400 h-10"></div><div class="w-2 bg-emerald-400 h-14"></div><div class="w-2 bg-emerald-400 h-12"></div>
-                    <div class="w-2 bg-emerald-400 h-20"></div><div class="w-2 bg-emerald-400 h-24"></div><div class="w-2 bg-emerald-400 h-22"></div>
-                    <div class="w-2 bg-emerald-400 h-28"></div>
-                </div>
-                <p class="text-[10px] text-slate-400 text-center mt-2">过去7天价格波动</p>
-            `);
-        }
-
-        function showNotifications() {
-            openModal("通知中心", `
-                <div class="space-y-3">
-                    <div class="flex p-3 bg-red-50 rounded-xl"><i class="ri-alarm-warning-fill text-red-500 mr-3"></i><div><p class="text-xs font-bold text-slate-700">暴雨预警</p><p class="text-[10px] text-slate-500">未来2小时可能有强降水。</p></div></div>
-                    <div class="flex p-3 bg-blue-50 rounded-xl"><i class="ri-information-fill text-blue-500 mr-3"></i><div><p class="text-xs font-bold text-slate-700">系统更新</p><p class="text-[10px] text-slate-500">V4.0 版本已上线。</p></div></div>
-                </div>
-            `);
-        }
-
-        function simulateExport() {
-            showToast("正在生成报表...");
-            setTimeout(() => { showToast("✅ PDF 导出成功"); }, 2000);
         }
 
         function toggleSim() { document.getElementById('simulator').classList.toggle('open'); }
@@ -335,7 +323,8 @@
             document.getElementById('moistText').innerText = val;
             document.getElementById('moistCircle').setAttribute('stroke-dasharray', `${val}, 100`);
             const sts = document.getElementById('statusText');
-            if(val < 30) sts.innerText = "WARNING"; else if(val > 80) sts.innerText = "HIGH WET"; else sts.innerText = "OPTIMAL";
+            if(val < 30) { sts.innerText = "DRY ALERT"; sts.parentElement.parentElement.parentElement.className = "card bg-red-500 text-white"; }
+            else { sts.innerText = "OPTIMAL"; sts.parentElement.parentElement.parentElement.className = "card card-dark"; }
         }
 
         function updateProfit(val) {
@@ -348,11 +337,19 @@
             pieChart.update();
         }
 
+        // Charts
+        const ctxGrowth = document.getElementById('growthChart').getContext('2d');
+        growthChart = new Chart(ctxGrowth, {
+            type: 'line',
+            data: { labels: ['J','F','M','A','M','J','J'], datasets: [{ data: [300,450,400,600,550,750,800], borderColor: '#10b981', backgroundColor: 'rgba(16, 185, 129, 0.1)', borderWidth: 2, tension: 0.4, fill: true, pointRadius: 0 }] },
+            options: { plugins: { legend: { display: false } }, scales: { y: { display: false }, x: { display: false } } }
+        });
+
         const ctxPie = document.getElementById('financePieChart').getContext('2d');
         pieChart = new Chart(ctxPie, {
             type: 'doughnut',
             data: { labels: ['Profit', 'Cost'], datasets: [{ data: [25200, 20000], backgroundColor: ['#fbbf24', '#ffffff'], borderWidth: 0 }] },
-            options: { cutout: '70%', plugins: { legend: { display: false } }, responsive: true, maintainAspectRatio: false }
+            options: { cutout: '75%', plugins: { legend: { display: false } }, responsive: true, maintainAspectRatio: false }
         });
     </script>
 </body>
